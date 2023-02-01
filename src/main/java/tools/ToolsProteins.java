@@ -29,9 +29,6 @@ import proteinDB.DBGlobal;
  */
 public class ToolsProteins {
 
-    private static final String MAP_PATH = "Proteins_Global_ID_map.csv";
-    private static final Logger LOGGER = Logger.getLogger(ToolsProteins.class.getName());
-
     public static void main(String args[]) throws FileNotFoundException {
 //        String path = "c:\\Datasets\\proteins\\490000dataset\\dataset\\data.json";
 //        DataObject[] objs = Tools.getObjectsArray(path);
