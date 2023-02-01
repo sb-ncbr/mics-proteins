@@ -14,7 +14,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import main.tools.Tools;
 import messif.data.DataObject;
-import messif.record.RecordImpl;
 
 /**
  *

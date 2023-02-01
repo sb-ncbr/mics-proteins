@@ -28,7 +28,7 @@ public class AddCSVPivotPairsIntoDB {
             Connection connection = DBGlobal.getConnection(DBGlobal.IP);
             insertPivotsPairs(connection, pivotCount, csvPivots, 1);
         } catch (SQLException ex) {
-            Logger.getLogger(PivotTables.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.log(Level.SEVERE, null, ex);
         }
     }
 

@@ -14,11 +14,9 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import main.tools.Tools;
-import messif.data.DataObject;
-import messif.data.util.StreamDataObjectIterator;
 import messif.utility.json.JSONException;
 import org.json.JSONObject;
-import sf.objects.impl.Sketch;
+import proteinDB.PivotTables;
 
 /**
  *
@@ -28,7 +26,8 @@ public class TMP {
 
     public static void main(String[] args) {
         Connection connection = DBGlobal.getConnection(DBGlobal.IP);
-        PivotTables.getPivotsFromDB(connection, false, true);
+        int activePivotSet = PivotTables.getActivePivotSet(connection);
+        PivotTables.getPivotsFromDB(connection, false, true, activePivotSet);
 //        String tableNameAndSuffix = "proteinChainMetadata NATURAL JOIN pivotSet WHERE pivotSet.currentlyUsed = 1 LIMIT 30000";
 //        initSketchesFromDB(connection, tableNameAndSuffix, "chainIntId", "sketch512p", "sk1024_long");
     }

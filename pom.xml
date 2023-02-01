@@ -44,23 +44,6 @@
     </build>    
     <dependencies>
         <dependency>
-            <groupId>messif</groupId>
-            <artifactId>messif</artifactId>
-            <version>3.0.0-DEVEL</version>
-            <type>jar</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>sf</groupId>
-                    <artifactId>SF_v3</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.mysql.jdbc</groupId>
-            <artifactId>Driver</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20080701</version>
@@ -72,9 +55,26 @@
             <version>0.9.5.5</version>
         </dependency>
         <dependency>
+            <groupId>com.mysql.jdbc</groupId>
+            <artifactId>Driver</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
             <groupId>sf</groupId>
             <artifactId>SF_v3</artifactId>
             <version>3.0</version>
+            <type>jar</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>messif</groupId>
+                    <artifactId>messif</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>messif</groupId>
+            <artifactId>messif</artifactId>
+            <version>3.0.0-DEVEL</version>
             <type>jar</type>
         </dependency>
     </dependencies>
