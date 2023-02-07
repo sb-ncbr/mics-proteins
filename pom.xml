@@ -69,6 +69,10 @@
                     <groupId>messif</groupId>
                     <artifactId>messif</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>QuestforNNSeach</groupId>
+                    <artifactId>a_quest_for_nn_search</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
