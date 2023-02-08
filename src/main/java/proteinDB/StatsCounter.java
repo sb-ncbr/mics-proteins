@@ -185,6 +185,9 @@ public class StatsCounter {
         synchronized (query) {
             String gesamtId = query.getField(ProteinDistance.ENCAPSULATED_PROTEIN_NAME, DataObject.class).getID();
             Statement st = query.getField("statement", Statement.class);
+            if (st == null) {
+                Logger.getLogger(StatsCounter.class.getName()).log(Level.SEVERE, "No Statement to access DB is provided!");
+            }
             try {
                 if (st.isClosed()) {
                     Logger.getLogger(StatsCounter.class.getName()).log(Level.SEVERE, "Statement is closed!");
