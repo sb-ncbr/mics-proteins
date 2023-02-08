@@ -93,6 +93,7 @@ public class PivotTables {
         } catch (SQLException ex) {
             Logger.getLogger(PivotTables.class.getName()).log(Level.SEVERE, null, ex);
         }
+        Logger.getLogger(PivotTables.class.getName()).log(Level.INFO, "Returning {0} pivots from DB", ret.size());
         return ret;
     }
 

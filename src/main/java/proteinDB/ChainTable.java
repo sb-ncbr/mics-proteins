@@ -79,6 +79,9 @@ public class ChainTable {
                     String key = res.getString("gesamtId");
                     String intId = res.getString("intId");
                     idmap.put(key, intId);
+                    if (counter % 100000 == 0) {
+                        LOG.log(Level.INFO, "Loaded {0} IDs", idmap.size());
+                    }
                 }
             } catch (SQLException ex) {
                 LOG.log(Level.SEVERE, null, ex);

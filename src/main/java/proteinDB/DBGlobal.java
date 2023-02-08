@@ -5,7 +5,6 @@
  */
 package proteinDB;
 
-import com.mysql.jdbc.Driver;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -13,7 +12,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import messif.data.DataObject;
@@ -40,10 +38,12 @@ public class DBGlobal {
         String user = iniFile.getString("db", "user", "chain");
         String password = iniFile.getString("db", "password", null);
 
-        String path = "jdbc:mysql://" + ipAddress + ":3306/" + database + "?autoReconnect=true&user=" + user + "&password=" + password + "&useUnicode=yes&characterEncoding=UTF-8";
+        String path = "jdbc:mysql://" + ipAddress + "/" + database;
+//        String path = "jdbc:mysql://" + ipAddress + ":3306/" + database + "?autoReconnect=true&user=" + user + "&password=" + password + "&useUnicode=yes&characterEncoding=UTF-8";
 //        System.err.println(path);
         try {
-            return makeConnection(path, null, Driver.class);
+            return DriverManager.getConnection(path, user, password);
+//            return makeConnection(path, null, Driver.class);
         } catch (IllegalArgumentException | SQLException ex) {
             LOG.log(Level.SEVERE, null, ex);
         }
@@ -56,25 +56,25 @@ public class DBGlobal {
         return iniFile.getString("dirs", "archive", null);
     }
 
-    private static Connection makeConnection(String dbConnUrl, Properties dbConnInfo, Class<Driver> dbDriverClass) throws IllegalArgumentException, SQLException {
-        if (dbConnUrl == null) {
-            throw new IllegalArgumentException("Database connection URL cannot be null");
-        }
-        try {
-            return DriverManager.getConnection(dbConnUrl, dbConnInfo);
-        } catch (SQLException e) {
-            // If the driver is not provided, we cannot establish a connection
-            if (dbDriverClass == null) {
-                throw e;
-            }
-            try {
-                // Create an instance of the new driver (it should register itself automatically) and return the connection
-                return dbDriverClass.newInstance().connect(dbConnUrl, dbConnInfo);
-            } catch (InstantiationException | IllegalAccessException | SQLException ex) {
-                throw new IllegalArgumentException("Cannot connect to database using driver " + dbDriverClass.getName() + ": " + ex, ex);
-            }
-        }
-    }
+//    private static Connection makeConnection(String dbConnUrl, Properties dbConnInfo, Class<Driver> dbDriverClass) throws IllegalArgumentException, SQLException {
+//        if (dbConnUrl == null) {
+//            throw new IllegalArgumentException("Database connection URL cannot be null");
+//        }
+//        try {
+//            return DriverManager.getConnection(dbConnUrl, dbConnInfo);
+//        } catch (SQLException e) {
+//            // If the driver is not provided, we cannot establish a connection
+//            if (dbDriverClass == null) {
+//                throw e;
+//            }
+//            try {
+//                // Create an instance of the new driver (it should register itself automatically) and return the connection
+//                return dbDriverClass.newInstance().connect(dbConnUrl, dbConnInfo);
+//            } catch (InstantiationException | IllegalAccessException | SQLException ex) {
+//                throw new IllegalArgumentException("Cannot connect to database using driver " + dbDriverClass.getName() + ": " + ex, ex);
+//            }
+//        }
+//    }
 
     public static DataObject selectCachedDists(Statement db, String queryGesamtId, int pivotCount, boolean filterPivots) {
         Map<String, Object> ret = new HashMap<>();

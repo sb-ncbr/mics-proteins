@@ -128,10 +128,12 @@ public class StatsCounter {
     public static String getJobProgressMessage(String jobId) {
         AtomicInteger ai = TOTAL_PROGRESS_COUNTER.get(jobId);
         if (ai == null) {
-            return "{"
+            String ret = "{"
                     + "\"Job_id\":\"" + jobId + "\","
                     + "\"Running\":0"
                     + "}";
+            System.out.println(ret);
+            return ret;
         } else {
             int pivotTotalCount = PIVOT_TOTAL_COUNT.get(jobId);
             int pivotsCached = PIVOT_TOTAL_CACHED.get(jobId);
@@ -147,6 +149,7 @@ public class StatsCounter {
                     + "\"pivotTime\":" + pivotsTimes;
             if (pivotTotalCount > dcCount) {
                 ret += "}";
+                System.out.println(ret);
                 return ret;
             }
             ai = SEARCH_DC_EXPECTED_COUNTER.get(jobId);
@@ -157,6 +160,7 @@ public class StatsCounter {
             ret += "\"searchDistCountComputed\":" + (dcCount - pivotTotalCount) + ","
                     + "\"searchDistCountExpected\":" + searchExpected + ","
                     + "\"searchDistCountCached\":" + (totalCached - pivotsCached) + "}";
+            System.out.println(ret);
             return ret;
         }
     }
