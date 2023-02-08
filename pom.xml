@@ -49,33 +49,22 @@
             <version>20080701</version>
             <type>jar</type>
         </dependency>
-        <dependency>
+        <!--        <dependency>
             <groupId>db</groupId>
             <artifactId>c3p0</artifactId>
             <version>0.9.5.5</version>
         </dependency>
-        <dependency>
-            <groupId>com.mysql.jdbc</groupId>
-            <artifactId>Driver</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>sf</groupId>
-            <artifactId>SF_v3</artifactId>
-            <version>3.0</version>
-            <type>jar</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>messif</groupId>
-                    <artifactId>messif</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+        -->
         <dependency>
             <groupId>messif</groupId>
             <artifactId>messif</artifactId>
             <version>3.0.0-DEVEL</version>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>sf</groupId>
+            <artifactId>SF_v3</artifactId>
+            <version>3.0</version>
         </dependency>
     </dependencies>
     <properties>
