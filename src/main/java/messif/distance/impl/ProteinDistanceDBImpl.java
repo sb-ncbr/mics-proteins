@@ -82,16 +82,15 @@ public class ProteinDistanceDBImpl extends ProteinDistance {
     @Override
     public float getDistance(DataObject o1, DataObject o2, float threshold) {
         String jobId = o1.getField(JOB_ID, String.class);
+        StatsCounter.incrementProgress(jobId);
         float ret = checkPrecomputedDists(o1, o2);
         if (ret >= 0) {
             StatsCounter.incrementCached(jobId);
-            StatsCounter.incrementProgress(jobId);
             return ret;
         }
         ret = checkPrecomputedDists(o2, o1);
         if (ret >= 0) {
             StatsCounter.incrementCached(jobId);
-            StatsCounter.incrementProgress(jobId);
             return ret;
         }
         String id1 = (String) o1.getField(ENCAPSULATED_PROTEIN_NAME, Record.class).getField("_id");
@@ -112,7 +111,6 @@ public class ProteinDistanceDBImpl extends ProteinDistance {
         if (time >= TIME_THRESHOLD_FOR_DB_STORING && statsTable != null) {
             QUEUE_FOR_DB_STORE.add(new Object[]{time, id1, id2, stats});
         }
-        StatsCounter.incrementProgress(jobId);
         return 1 - stats[0];
     }
 
