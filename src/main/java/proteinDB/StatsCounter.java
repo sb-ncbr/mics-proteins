@@ -44,8 +44,8 @@ public class StatsCounter {
         JOB_TIME_STAMP = new ConcurrentHashMap<>();
     }
 
-    public static void incrementDCToBeDone(String jobId) {
-        incrementCounter(jobId, SEARCH_DC_EXPECTED_COUNTER);
+    public static int incrementDCToBeDone(String jobId) {
+        return incrementCounter(jobId, SEARCH_DC_EXPECTED_COUNTER);
     }
 
     public static void incrementCached(String jobId) {
@@ -56,15 +56,16 @@ public class StatsCounter {
         incrementCounter(jobId, TOTAL_PROGRESS_COUNTER);
     }
 
-    private static void incrementCounter(String jobId, ConcurrentHashMap<String, AtomicInteger> counter) {
+    private static int incrementCounter(String jobId, ConcurrentHashMap<String, AtomicInteger> counter) {
         if (counter == null || jobId == null) {
-            return;
+            return -1;
         }
         AtomicInteger ai = counter.get(jobId);
         if (ai == null) {
             counter.put(jobId, new AtomicInteger(1));
+            return 1;
         } else {
-            ai.incrementAndGet();
+            return ai.incrementAndGet();
         }
     }
 
