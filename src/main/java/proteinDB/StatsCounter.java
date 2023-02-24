@@ -87,7 +87,12 @@ public class StatsCounter {
     }
 
     public static int getPivotTotalTimes(String jobId) {
-        return PIVOT_TOTAL_TIMES.get(jobId);
+        Integer ret = PIVOT_TOTAL_TIMES.get(jobId);
+        if (ret == null) {
+            Logger.getLogger(StatsCounter.class.getName()).log(Level.WARNING, "Pivot times not set");
+            return -1;
+        }
+        return ret;
     }
 
     public static void deleteCounters(String jobID) {
