@@ -199,7 +199,9 @@ public class StatsCounter {
                 Logger.getLogger(StatsCounter.class.getName()).log(Level.SEVERE, "No Statement to access DB is provided!");
             }
             try {
-                if (st.isClosed()) {
+                if (st == null) {
+                    Logger.getLogger(StatsCounter.class.getName()).log(Level.SEVERE, "No Statement to access DB is provided!");
+                } else if (st.isClosed()) {
                     Logger.getLogger(StatsCounter.class.getName()).log(Level.SEVERE, "Statement is closed!");
                 }
             } catch (SQLException ex) {
