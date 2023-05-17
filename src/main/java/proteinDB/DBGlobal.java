@@ -16,6 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import messif.data.DataObject;
 import messif.record.RecordImpl;
+import messif.utility.json.JSONReader;
 
 /**
  *
@@ -56,26 +57,6 @@ public class DBGlobal {
         return iniFile.getString("dirs", "archive", null);
     }
 
-//    private static Connection makeConnection(String dbConnUrl, Properties dbConnInfo, Class<Driver> dbDriverClass) throws IllegalArgumentException, SQLException {
-//        if (dbConnUrl == null) {
-//            throw new IllegalArgumentException("Database connection URL cannot be null");
-//        }
-//        try {
-//            return DriverManager.getConnection(dbConnUrl, dbConnInfo);
-//        } catch (SQLException e) {
-//            // If the driver is not provided, we cannot establish a connection
-//            if (dbDriverClass == null) {
-//                throw e;
-//            }
-//            try {
-//                // Create an instance of the new driver (it should register itself automatically) and return the connection
-//                return dbDriverClass.newInstance().connect(dbConnUrl, dbConnInfo);
-//            } catch (InstantiationException | IllegalAccessException | SQLException ex) {
-//                throw new IllegalArgumentException("Cannot connect to database using driver " + dbDriverClass.getName() + ": " + ex, ex);
-//            }
-//        }
-//    }
-
     public static DataObject selectCachedDists(Statement db, String queryGesamtId, int pivotCount, boolean filterPivots) {
         Map<String, Object> ret = new HashMap<>();
         if (db == null) {
@@ -93,6 +74,33 @@ public class DBGlobal {
                 pivotTableName = "pivot512ForSketches";
             }
             String sql;
+
+            //try to take it from DB as the dists to pivots
+            sql = "SELECT * FROM "
+                    + "((SELECT chainIntId, pivotDistances, pivotSetId FROM proteinChainMetadata m INNER JOIN proteinChain p ON m.chainIntId = p.intId "
+                    + "WHERE p.gesamtId = '" + queryGesamtId + "') x INNER JOIN (SELECT id FROM pivotSet WHERE currentlyUsed=1) y ON x.pivotSetId = y.id)";
+            LOG.log(Level.INFO, "selectPrecomputedDistsToPivots:\n{0};", new Object[]{sql});
+            ResultSet res = db.executeQuery(sql);
+            Integer counterPrecomputedPivots = 0;
+            if (res.next()) {
+                String jsonString = res.getString("pivotDistances");
+                DataObject json = (DataObject) JSONReader.readObjectFrom(jsonString, true);
+                json = json.getField("dists", DataObject.class);
+                Map<String, Object> map = json.getMap();
+                ret.putAll(map);
+                LOG.log(Level.INFO, "selectPrecomputedDistsToPivots: found {0} distances", new Object[]{map.size()});
+                counterPrecomputedPivots = map.size();
+            } else {
+                LOG.log(Level.INFO, "selectPrecomputedDistsToPivots: nothing was found");
+            }
+            res.close();
+            if (filterPivots && counterPrecomputedPivots >= pivotCount) {
+                LOG.log(Level.INFO, "selectPrecomputedDistsToPivots: All dists to pivots already computed in advance. Found {0} dists, required {1} of them", new Object[]{counterPrecomputedPivots, pivotCount});
+                ret.put("pivotDistCountCached", pivotCount);
+                return new RecordImpl(ret);
+            }
+
+            //add cached dists evaluated during the runtime of the demo
             if (!filterPivots) {
                 sql = "SELECT intId AS objId, 1-qscore AS dist"
                         + "    FROM (queriesNearestNeighboursStats s INNER JOIN proteinChain c ON s.nnGesamtId=c.gesamtId)"
@@ -107,15 +115,15 @@ public class DBGlobal {
                         + "       )";
             }
             LOG.log(Level.INFO, "selectCachedDists:\n{0};", new Object[]{sql});
-            ResultSet res = db.executeQuery(sql);
-            Integer counterPivots;
-            for (counterPivots = 0; res.next(); counterPivots++) {
+            res = db.executeQuery(sql);
+            int cachedCounter = 0;
+            for (cachedCounter = 0; res.next(); cachedCounter++) {
                 String id = res.getString("objId");
                 float dist = res.getFloat("dist");
                 ret.put(id, dist);
             }
             if (filterPivots) {
-                ret.put("pivotDistCountCached", counterPivots);
+                ret.put("pivotDistCountCached", counterPrecomputedPivots + cachedCounter);
             }
             res.close();
             return new RecordImpl(ret);
