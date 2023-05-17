@@ -25,7 +25,7 @@ import proteinDB.PivotTables;
 public class TMP {
 
     public static void main(String[] args) {
-        Connection connection = DBGlobal.getConnection(DBGlobal.IP);
+        Connection connection = proteinDB.DBGlobal.getConnectionFromIniFile();
         int activePivotSet = PivotTables.getActivePivotSet(connection);
         PivotTables.getPivotsFromDB(connection, false, true, activePivotSet);
 //        String tableNameAndSuffix = "proteinChainMetadata NATURAL JOIN pivotSet WHERE pivotSet.currentlyUsed = 1 LIMIT 30000";

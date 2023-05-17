@@ -25,7 +25,7 @@ public class AddCSVPivotPairsIntoDB {
         try {
             int pivotCount = 64;
             List<String>[] csvPivots = Tools.parseCsv("c:\\Datasets\\proteins\\490000dataset\\csvPivotPairs\\64_512\\320_pairs.csv", 2, false);
-            Connection connection = DBGlobal.getConnection(DBGlobal.IP);
+            Connection connection = proteinDB.DBGlobal.getConnectionFromIniFile();
             insertPivotsPairs(connection, pivotCount, csvPivots, 1);
         } catch (SQLException ex) {
             LOG.log(Level.SEVERE, null, ex);

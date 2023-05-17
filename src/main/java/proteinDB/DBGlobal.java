@@ -116,7 +116,7 @@ public class DBGlobal {
             }
             LOG.log(Level.INFO, "selectCachedDists:\n{0};", new Object[]{sql});
             res = db.executeQuery(sql);
-            int cachedCounter = 0;
+            int cachedCounter;
             for (cachedCounter = 0; res.next(); cachedCounter++) {
                 String id = res.getString("objId");
                 float dist = res.getFloat("dist");

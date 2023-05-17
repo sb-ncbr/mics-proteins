@@ -207,11 +207,14 @@ public class StatsCounter {
             } catch (SQLException ex) {
                 Logger.getLogger(StatsCounter.class.getName()).log(Level.SEVERE, null, ex);
             }
+            long time = -System.currentTimeMillis();
             DataObject cachedDists = DBGlobal.selectCachedDists(st, gesamtId, objectsForDistsCount, filterJustPivots);
+            time += System.currentTimeMillis();
             query = DataObject.addField(query, ObjectToSketchTransformator.DISTS_MAP_FIELD, cachedDists);
             query = DataObject.addField(query, Tools.PIVOT_COUNT, objectsForDistsCount);
             int cachedPivots = filterJustPivots ? cachedDists.getField("pivotDistCountCached", Integer.class) : 0;
             query = DataObject.addField(query, "pivotDistCountCached", cachedPivots);
+            query = DataObject.addField(query, "pivotDistTimes", time);
             String jobId = query.getField(ProteinDistance.JOB_ID, String.class);
             StatsCounter.setTimeStamp(jobId);
             StatsCounter.setPivotCached(jobId, cachedPivots);
