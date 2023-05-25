@@ -60,6 +60,9 @@ public class StatsTable {
             return;
         }
         try {
+            if (st.isClosed()) {
+                return;
+            }
             synchronized (st) {
                 try {
                     st.clearParameters();
@@ -69,7 +72,7 @@ public class StatsTable {
                 for (int i = 0; i < batchSize; i++) {
                     Object[] data = queue.poll();
                     if (data == null) {
-                        return; // it will bestored next time - must be done in this way to make paralelism safe
+                        return; // it will be stored next time - must be done in this way to make paralelism safe
                     }
                     float[] stats = (float[]) data[3];
                     String rotationStats = DF.format(stats[4]);
