@@ -52,6 +52,18 @@ public class StatsCounter {
         incrementCounter(jobId, TOTAL_CACHED_DISTS_COUNTER);
     }
 
+    public static void incrementCached(String jobId, int byValue) {
+        if (TOTAL_CACHED_DISTS_COUNTER == null || jobId == null) {
+            return;
+        }
+        AtomicInteger ai = TOTAL_CACHED_DISTS_COUNTER.get(jobId);
+        if (ai == null) {
+            TOTAL_CACHED_DISTS_COUNTER.put(jobId, new AtomicInteger(byValue));
+        } else {
+            ai.addAndGet(byValue);
+        }
+    }
+
     public static void incrementProgress(String jobId) {
         incrementCounter(jobId, TOTAL_PROGRESS_COUNTER);
     }
@@ -90,7 +102,7 @@ public class StatsCounter {
         Integer ret = PIVOT_TOTAL_TIMES.get(jobId);
         if (ret == null) {
             Logger.getLogger(StatsCounter.class.getName()).log(Level.WARNING, "Pivot times not set");
-            return -1;
+            return 0;
         }
         return ret;
     }
@@ -143,9 +155,10 @@ public class StatsCounter {
         } else {
             int pivotTotalCount = PIVOT_TOTAL_COUNT.get(jobId);
             int pivotsCached = PIVOT_TOTAL_CACHED.get(jobId);
-            Integer pivotsTimes = PIVOT_TOTAL_TIMES.get(jobId);
+            Integer pivotsTimes = getPivotTotalTimes(jobId);
             int dcCount = TOTAL_PROGRESS_COUNTER.get(jobId).get();
             int pivotDoneCount = Math.min(dcCount, pivotTotalCount);
+            pivotDoneCount = Math.max(pivotDoneCount, 0);
             String ret = "{"
                     + "\"Job_id\":\"" + jobId + "\","
                     + "\"Running\":1,"
@@ -153,17 +166,18 @@ public class StatsCounter {
                     + "\"pivotDistCountExpected\":" + pivotTotalCount + ","
                     + "\"pivotDistCountCached\":" + pivotsCached + ","
                     + "\"pivotTime\":" + pivotsTimes;
-            if (pivotTotalCount > dcCount) {
-                ret += "}";
-                System.out.println(ret);
-                return ret;
-            }
+//            if (pivotTotalCount > dcCount) {
+//                ret += "}";
+//                System.out.println(ret);
+//                return ret;
+//            }
             ai = SEARCH_DC_EXPECTED_COUNTER.get(jobId);
             int searchExpected = ai == null ? 0 : ai.get();
             ai = TOTAL_CACHED_DISTS_COUNTER.get(jobId);
             int totalCached = ai == null ? pivotsCached : ai.get();
             ret += ",";
-            ret += "\"searchDistCountComputed\":" + (dcCount - pivotTotalCount) + ","
+            int searchDistCountComputed = Math.max(0, dcCount - pivotTotalCount);
+            ret += "\"searchDistCountComputed\":" + searchDistCountComputed + ","
                     + "\"searchDistCountExpected\":" + searchExpected + ","
                     + "\"searchDistCountCached\":" + (totalCached - pivotsCached) + "}";
             System.out.println(ret);
@@ -213,9 +227,11 @@ public class StatsCounter {
             query = DataObject.addField(query, ObjectToSketchTransformator.DISTS_MAP_FIELD, cachedDists);
             query = DataObject.addField(query, Tools.PIVOT_COUNT, objectsForDistsCount);
             int cachedPivots = filterJustPivots ? cachedDists.getField("pivotDistCountCached", Integer.class) : 0;
+            long pivotTimes = filterJustPivots ? cachedDists.getField("pivotTimes", Long.class) : 0;
             query = DataObject.addField(query, "pivotDistCountCached", cachedPivots);
             query = DataObject.addField(query, "pivotDistTimes", time);
             String jobId = query.getField(ProteinDistance.JOB_ID, String.class);
+            setPivotsTimes(jobId, pivotTimes);
             StatsCounter.setTimeStamp(jobId);
             StatsCounter.setPivotCached(jobId, cachedPivots);
             StatsCounter.setPivotTotalCount(jobId, objectsForDistsCount);

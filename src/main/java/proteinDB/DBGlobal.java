@@ -76,6 +76,7 @@ public class DBGlobal {
             String sql;
 
             //try to take it from DB as the dists to pivots
+            long timeStamp = -System.currentTimeMillis();
             sql = "SELECT * FROM "
                     + "((SELECT chainIntId, pivotDistances, pivotSetId FROM proteinChainMetadata m INNER JOIN proteinChain p ON m.chainIntId = p.intId "
                     + "WHERE p.gesamtId = '" + queryGesamtId + "') x INNER JOIN (SELECT id FROM pivotSet WHERE currentlyUsed=1) y ON x.pivotSetId = y.id)";
@@ -97,6 +98,9 @@ public class DBGlobal {
             if (filterPivots && counterPrecomputedPivots >= pivotCount) {
                 LOG.log(Level.INFO, "selectPrecomputedDistsToPivots: All dists to pivots already computed in advance. Found {0} dists, required {1} of them", new Object[]{counterPrecomputedPivots, pivotCount});
                 ret.put("pivotDistCountCached", pivotCount);
+                timeStamp += System.currentTimeMillis();
+                ret.put("pivotDistCountCached", pivotCount);
+                ret.put("pivotDistCountCached", timeStamp);
                 return new RecordImpl(ret);
             }
 
