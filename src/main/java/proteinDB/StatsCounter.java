@@ -85,13 +85,19 @@ public class StatsCounter {
         int[] ret = new int[2];
         AtomicInteger ai = TOTAL_CACHED_DISTS_COUNTER.get(jobId);
         ret[0] = ai == null ? 0 : ai.get();
-        int pivotsCached = PIVOT_TOTAL_CACHED.get(jobId);
+        Integer pivotsCached = PIVOT_TOTAL_CACHED.get(jobId);
+        if (pivotsCached == null) {
+            pivotsCached = 0;
+        }
         if (pivotsCached <= ret[0]) {
             ret[0] -= pivotsCached;
         }
         ai = TOTAL_PROGRESS_COUNTER.get(jobId);
         ret[1] = ai == null ? 0 : ai.get();
-        int pivotsTotal = PIVOT_TOTAL_COUNT.get(jobId);
+        Integer pivotsTotal = PIVOT_TOTAL_COUNT.get(jobId);
+        if (pivotsTotal == null) {
+            pivotsTotal = 0;
+        }
         if (pivotsTotal <= ret[1]) {
             ret[1] -= pivotsTotal;
         }
@@ -153,8 +159,14 @@ public class StatsCounter {
             System.out.println(ret);
             return ret;
         } else {
-            int pivotTotalCount = PIVOT_TOTAL_COUNT.get(jobId);
-            int pivotsCached = PIVOT_TOTAL_CACHED.get(jobId);
+            Integer pivotTotalCount = PIVOT_TOTAL_COUNT.get(jobId);
+            if (pivotTotalCount == null) {
+                pivotTotalCount = 0;
+            }
+            Integer pivotsCached = PIVOT_TOTAL_CACHED.get(jobId);
+            if (pivotsCached == null) {
+                pivotsCached = 0;
+            }
             Integer pivotsTimes = getPivotTotalTimes(jobId);
             int dcCount = TOTAL_PROGRESS_COUNTER.get(jobId).get();
             int pivotDoneCount = Math.min(dcCount, pivotTotalCount);
@@ -226,15 +238,23 @@ public class StatsCounter {
             time += System.currentTimeMillis();
             query = DataObject.addField(query, ObjectToSketchTransformator.DISTS_MAP_FIELD, cachedDists);
             query = DataObject.addField(query, Tools.PIVOT_COUNT, objectsForDistsCount);
-            int cachedPivots = filterJustPivots ? cachedDists.getField("pivotDistCountCached", Integer.class) : 0;
-            long pivotTimes = filterJustPivots ? cachedDists.getField("pivotTimes", Long.class) : 0;
+            Integer cachedPivots = filterJustPivots ? cachedDists.getField("pivotDistCountCached", Integer.class) : 0;
+            Long pivotTimes = filterJustPivots ? cachedDists.getField("pivotTimes", Long.class) : 0L;
             query = DataObject.addField(query, "pivotDistCountCached", cachedPivots);
             query = DataObject.addField(query, "pivotDistTimes", time);
             String jobId = query.getField(ProteinDistance.JOB_ID, String.class);
-            setPivotsTimes(jobId, pivotTimes);
             StatsCounter.setTimeStamp(jobId);
-            StatsCounter.setPivotCached(jobId, cachedPivots);
-            StatsCounter.setPivotTotalCount(jobId, objectsForDistsCount);
+            setPivotTotalCount(jobId, objectsForDistsCount);
+            if (cachedPivots != null) {
+                setPivotCached(jobId, cachedPivots);
+            } else {
+                setPivotCached(jobId, 0);
+            }
+            if (pivotTimes != null) {
+                setPivotsTimes(jobId, pivotTimes);
+            } else {
+                setPivotsTimes(jobId, 0L);
+            }
             StatsCounter.setCurrProgress(jobId, 0);
             StatsCounter.deleteOldCounters();
             return query;
