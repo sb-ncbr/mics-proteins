@@ -168,8 +168,8 @@ public class StatsCounter {
                 pivotsCached = 0;
             }
             Integer pivotsTimes = getPivotTotalTimes(jobId);
-            int dcCount = TOTAL_PROGRESS_COUNTER.get(jobId).get();
-            int pivotDoneCount = Math.min(dcCount, pivotTotalCount);
+            int totalDCCount = TOTAL_PROGRESS_COUNTER.get(jobId).get();
+            int pivotDoneCount = Math.min(totalDCCount, pivotTotalCount);
             pivotDoneCount = Math.max(pivotDoneCount, 0);
             String ret = "{"
                     + "\"Job_id\":\"" + jobId + "\","
@@ -188,7 +188,7 @@ public class StatsCounter {
             ai = TOTAL_CACHED_DISTS_COUNTER.get(jobId);
             int totalCached = ai == null ? pivotsCached : ai.get();
             ret += ",";
-            int searchDistCountComputed = Math.max(0, dcCount - pivotTotalCount);
+            int searchDistCountComputed = Math.max(0, totalDCCount - pivotTotalCount);
             ret += "\"searchDistCountComputed\":" + searchDistCountComputed + ","
                     + "\"searchDistCountExpected\":" + searchExpected + ","
                     + "\"searchDistCountCached\":" + (totalCached - pivotsCached) + "}";
