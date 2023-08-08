@@ -94,7 +94,7 @@ public class StatsTable {
                 LOG.log(Level.INFO, "Stored {0} distances in {1} ms", new Object[]{batchSize, t1});
             }
         } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, null, ex);
+            LOG.log(Level.WARNING, "Stats table: something wrong happened", ex);
         }
     }
 
