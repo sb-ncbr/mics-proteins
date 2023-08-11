@@ -1,0 +1,1 @@
+rsync -av /home/jakub/git/school/diplomka/proteins/target/proteins-1.0-jar-with-dependencies.jar protein-jo:/home/ubuntu/protein-search/08_rebuildSeqScanAlgs/proteins-1.0-jar-with-dependencies.jar

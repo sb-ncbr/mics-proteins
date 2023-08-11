@@ -9,39 +9,38 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <showDeprecation>false</showDeprecation>
-                </configuration>
-            </plugin>
-            <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.4</version>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                    <archive>
-                        <manifest>
-                            <mainClass>algBuild.WebAppRebuildSeqScanAlgs</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
                 <executions>
                     <execution>
-                        <id>make-assembly</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
+                        <configuration>
+                            <archive>
+                                <manifest>
+                                    <addClasspath>true</addClasspath>
+                                    <classpathPrefix>lib/</classpathPrefix>
+                                    <mainClass>algBuild.WebAppRebuildSeqScanAlgs</mainClass>
+                                </manifest>
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                        </configuration>
                     </execution>
                 </executions>
-            </plugin>            
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>16</source>
+                    <target>16</target>
+                </configuration>
+            </plugin>
         </plugins>
-    </build>    
+    </build>
     <dependencies>
         <dependency>
             <groupId>org.json</groupId>
@@ -49,23 +48,26 @@
             <version>20080701</version>
             <type>jar</type>
         </dependency>
-        <!--        <dependency>
-            <groupId>db</groupId>
-            <artifactId>c3p0</artifactId>
-            <version>0.9.5.5</version>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.23</version>
         </dependency>
-        -->
         <dependency>
             <groupId>messif</groupId>
             <artifactId>messif</artifactId>
             <version>3.0.0-DEVEL</version>
             <type>jar</type>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/messif-3.0.0-DEVEL.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>sf</groupId>
             <artifactId>SF_v3</artifactId>
             <version>3.0</version>
             <type>jar</type>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/SF_v3-3.0.jar</systemPath>
         </dependency>
     </dependencies>
     <properties>

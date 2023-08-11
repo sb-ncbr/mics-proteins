@@ -148,11 +148,7 @@ public class ChainTable {
     public static DataObjectIterator getIteratorOverSketchesToBeIndexedFromDB(Connection db, Integer pivotSetId) {
         try {
             Statement st = db.createStatement();
-            String pivotSetCondition = "p.currentlyUsed=1";
-            if (pivotSetId != null) {
-                pivotSetCondition = "p.id = " + pivotSetId;
-            }
-            String sql = "SELECT NULL as gesamtId, chainIntId AS intId, NULL as pivotDistances, sketch512p, sketch64p FROM (proteinChainMetadata m NATURAL JOIN pivotSet p) INNER JOIN proteinChain c ON c.intId=m.chainIntId WHERE " + pivotSetCondition + " AND m.sketch512p IS NOT NULL AND c.indexedAsDataObject=1";
+            String sql = "SELECT NULL as gesamtId, chainIntId AS intId, NULL as pivotDistances, sketch512p, sketch64p FROM proteinChainMetadata m WHERE pivotSetId=5 AND m.sketch512p IS NOT NULL";
             LOG.log(Level.INFO, "Executed\n{0};", new Object[]{sql});
             ResultSet res = st.executeQuery(sql);
             LOG.log(Level.INFO, "Finished");
@@ -200,7 +196,7 @@ public class ChainTable {
                     DataObject pivotDistsRecord = (DataObject) JSONReader.readObjectFrom(pivotDistances, true);
                     obj = DataObject.addField(obj, "dists", pivotDistsRecord.getField("dists"));
                 }
-                if (sketch512p != null) {
+                if (sketch512p != null && !sketch512p.equals("")) {
                     DataObject sketch512pRecord = (DataObject) JSONReader.readObjectFrom(sketch512p, true);
                     obj = DataObject.addField(obj, "sk1024_long", sketch512pRecord.getField("sk1024_long"));
                 }
