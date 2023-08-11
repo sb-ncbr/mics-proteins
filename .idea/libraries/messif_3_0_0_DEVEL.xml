@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="messif-3.0.0-DEVEL">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/src/main/resources/messif-3.0.0-DEVEL.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
