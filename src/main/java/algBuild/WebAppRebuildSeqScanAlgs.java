@@ -42,7 +42,7 @@ public class WebAppRebuildSeqScanAlgs {
         List<DataObject> longSketches = new ArrayList<>();
         for (int i = 0; it.hasNext(); i++) {
             DataObject proteinChain = it.next();
-            DataObject shortSketch = Tools.getSubObject(proteinChain, "sk194_long");
+            DataObject shortSketch = Tools.getSubObject(proteinChain, "sk192_long");
             DataObject longSketch = Tools.getSubObject(proteinChain, "sk1024_long");
             shortSketches.add(shortSketch);
             longSketches.add(longSketch);
@@ -50,7 +50,7 @@ public class WebAppRebuildSeqScanAlgs {
                 Logger.getLogger(WebAppRebuildSeqScanAlgs.class.getName()).log(Level.INFO, "Loaded {0} sketches from DB", i);
             }
         }
-        buildAndStoreAlg(shortSketches, "sk194_long", pathToShortSketchesAgs);
+        buildAndStoreAlg(shortSketches, "sk192_long", pathToShortSketchesAgs);
         buildAndStoreAlg(longSketches, "sk1024_long", pathToLongSketchesAgs);
     }
 

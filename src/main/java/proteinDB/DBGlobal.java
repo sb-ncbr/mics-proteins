@@ -39,7 +39,7 @@ public class DBGlobal {
         String user = iniFile.getString("db", "user", "chain");
         String password = iniFile.getString("db", "password", null);
 
-        String path = "jdbc:mysql://" + ipAddress + "/" + database  + "?autoReconnect=true";
+        String path = "jdbc:mysql://" + ipAddress + "/" + database  + "?autoReconnect=true&readonly=true";
 //        String path = "jdbc:mysql://" + ipAddress + ":3306/" + database + "?autoReconnect=true&user=" + user + "&password=" + password + "&useUnicode=yes&characterEncoding=UTF-8";
 //        System.err.println(path);
         try {
