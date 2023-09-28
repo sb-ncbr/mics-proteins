@@ -42,7 +42,7 @@
 //            DataObject obj64Pivots = dataObjects64Pivots.get(chainIntId);
 //            String pivotDistances = Tools.getSubObject(obj512Pivots, "dists", false).toJSONString();
 //            String sketch512p = Tools.getSubObject(obj512Pivots, "sk1024_long", false).toJSONString();
-//            String sketch64p = Tools.getSubObject(obj64Pivots, "sk194_long", false).toJSONString();
+//            String sketch64p = Tools.getSubObject(obj64Pivots, "sk192_long", false).toJSONString();
 //            String sql = "INSERT INTO proteinChainMetadata(pivotSetId, chainIntId, pivotDistances, sketch512p, sketch64p) VALUES (" + pivotSetId + ", " + chainIntId + ", '" + pivotDistances + "', '" + sketch512p + "', '" + sketch64p + "')";
 //            LOG.log(Level.INFO, "Added object {0} with id {1}.", new Object[]{i, chainIntId});
 //            st.execute(sql);

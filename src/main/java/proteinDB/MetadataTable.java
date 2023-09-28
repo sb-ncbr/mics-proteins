@@ -26,7 +26,7 @@ public class MetadataTable {
     public static void main(String[] args) {
         try {
             Iterator<DataObject> dataObjects512Pivots = Tools.getIterator("c:\\Datasets\\proteins\\490000dataset\\dataset\\sketches\\512\\results_512_sk1024b.json");
-            Map<String, DataObject> dataObjects64Pivots = Tools.getObjectsAsLocatorMap("c:\\Datasets\\proteins\\490000dataset\\dataset\\sketches\\64_512\\results_512_sk194b.json", -1);
+            Map<String, DataObject> dataObjects64Pivots = Tools.getObjectsAsLocatorMap("c:\\Datasets\\proteins\\490000dataset\\dataset\\sketches\\64_512\\results_512_sk192b.json", -1);
             Connection connection = DBGlobal.getConnectionFromIniFile();
             insertMetadata(connection, dataObjects512Pivots, dataObjects64Pivots, 1);
         } catch (SQLException ex) {
@@ -42,7 +42,7 @@ public class MetadataTable {
             DataObject obj64Pivots = dataObjects64Pivots.get(chainIntId);
             String pivotDistances = Tools.getSubObject(obj512Pivots, "dists", false).toJSONString();
             String sketch512p = Tools.getSubObject(obj512Pivots, "sk1024_long", false).toJSONString();
-            String sketch64p = Tools.getSubObject(obj64Pivots, "sk194_long", false).toJSONString();
+            String sketch64p = Tools.getSubObject(obj64Pivots, "sk192_long", false).toJSONString();
             String sql = "INSERT INTO proteinChainMetadata(pivotSetId, chainIntId, pivotDistances, sketch512p, sketch64p) VALUES (" + pivotSetId + ", " + chainIntId + ", '" + pivotDistances + "', '" + sketch512p + "', '" + sketch64p + "')";
             LOG.log(Level.INFO, "Added object {0} with id {1}.", new Object[]{i, chainIntId});
             st.execute(sql);
@@ -56,7 +56,7 @@ public class MetadataTable {
             String chainIntId = obj.getID();
             String pivotDistances = Tools.getSubObject(obj, "dists", false).toJSONString();
             String sketch512p = Tools.getSubObject(obj, "sk1024_long", false).toJSONString();
-            String sketch64p = Tools.getSubObject(obj, "sk194_long", false).toJSONString();
+            String sketch64p = Tools.getSubObject(obj, "sk192_long", false).toJSONString();
             String sql = "REPLACE INTO proteinChainMetadata(pivotSetId, chainIntId, pivotDistances, sketch512p, sketch64p) VALUES (" + pivotSetId + ", " + chainIntId + ", '" + pivotDistances + "', '" + sketch512p + "', '" + sketch64p + "')";
             LOG.log(Level.INFO, "SQL command to add metadata to protein {0}:", new Object[]{chainIntId});
             LOG.log(Level.INFO, "{0}.", new Object[]{sql});

@@ -206,7 +206,7 @@ public class ChainTable {
                 }
                 if (sketch64p != null) {
                     DataObject sketch64pRecord = (DataObject) JSONReader.readObjectFrom(sketch64p, true);
-                    obj = DataObject.addField(obj, "sk194_long", sketch64pRecord.getField("sk194_long"));
+                    obj = DataObject.addField(obj, "sk192_long", sketch64pRecord.getField("sk192_long"));
                 }
                 if (gesamtId != null) {
                     DataObject protein = Tools.getNewDataObjectWithId(gesamtId);
