@@ -1,0 +1,128 @@
+HOST=localhost
+PORT=20512
+RMIPORT=21512
+
+starthosts=$HOST:$PORT
+javaparams="-Xmx80g -XX:+UseG1GC -XX:TargetSurvivorRatio=1 -XX:NewSize=800m -Djgroups.tcp.address=$HOST -Djgroups.tcp.port=$INFINI_PORT -Djgroups.mping.mcast_port=$INFINI_PORT -Djgroups.bind_addr=$HOST"
+#javahome="/usr/lib/jvm/jdk-1.8"
+javahome=" /usr/lib/jvm/java-openjdk/"
+classdir=jars
+mainclass="messif.appl.HttpApplication $RMIPORT -httpThreads 50 -httpBacklog 100"
+batchvar rmiPort=$RMIPORT
+
+#########################################################
+
+batchvar iniFile=/home/ubuntu/ProteinSearch/utils/protein_search.ini
+
+
+#GESAMTLIBPATH=${GESAMTLIBPATH:-/data/PDBe_binary}
+GESAMTLIBPATH=${GESAMTLIBPATH:-/mnt/PDBe_clone_binary}
+
+PRIMOBJNAME=${PRIMOBJNAME:-proteinObj}
+batchvar primObjName=$PRIMOBJNAME
+
+PRIMDIST="messif.distance.impl.ProteinDistanceDBImpl(${GESAMTLIBPATH},0)"
+REFINEDISTFUNC="messif.distance.impl.ProteinDistanceDBImpl(${GESAMTLIBPATH},0.6)"
+
+#REFINEDISTFUNC=${REFINEDISTFUNC:-messif.distance.DataObjectDistanceFunc(${PRIMOBJNAME},"${PRIMDIST}")} - takto se udela az v config file (ppp.cf)
+
+
+########################################################
+
+# settings of the M-Index that are needed only during the index initialization
+k=${k:-512}
+l=${l:-6}
+MINLEVEL=${MINLEVEL:-1}
+CAP=${CAP:-0}
+
+INDEXDIR=${INDEXDIR:-algs}
+# distance function is needed only during index creation (and then it's serialized within the index)
+#batchvar distancefunc=${PRIMDIST}
+batchvar primDist=${PRIMDIST}
+
+
+
+
+# these are needed just for build phase
+batchvar pivots=$k
+batchvar minlevel=$MINLEVEL
+batchvar capacity=$CAP
+batchvar prefix=$l
+
+
+
+############################################################
+#pppcodes.defaults
+############################################################
+
+# Settings of the PPP-Codes
+# This file is included only when creating a new index (from new-index.defaults)
+LAMBDA=${LAMBDA:-4}
+
+# these are needed just for build phase
+batchvar indexes=$LAMBDA
+
+# 0 means no left padding by zeros
+batchvar locatorlength=0
+
+
+
+##########################################################
+#setting from file base.settings
+##########################################################
+
+INDEX_DATA_DIR="${INDEXDIR}"
+
+#####  Common batch variables
+
+# these actions from the .cf file are executed after index is built
+batchvar actionsInTheEnd="statisticsDisable garbage"
+batchvar useStats=""
+
+
+
+#########################################################
+#setting from file base-pppcodes.settings
+#########################################################
+
+
+batchvar visualfield=$PRIMOBJNAME
+# distance function used for refinement by the MapDB key-value store
+batchvar refinedist=$REFINEDISTFUNC
+
+FILESTORE=${INDEX_DATA_DIR}/mapdb/filestore
+OPLOGIDSTORE=${FILESTORE}.wal
+
+# the actions are defined in this file
+batchfile="manager-pppcodes.cf"
+# the command to be executed from the 'batchfile' ('actions' is default)
+#batchcmd=emptyStart
+batchcmd=buildPPPcodes
+#batchcmd=actions
+#
+####batchvar actionsBefore="statisticsDisable multiThreadOn garbage startRMI"
+
+
+# these actions from the manager.cf file are executed when the index is deserialized and should be prepared for production
+# batchvar additionalActionsProduction="statisticsDisable multiThreadOn garbage logging httpStart"
+# batchvar additionalActionsProduction="statisticsDisable garbage logging httpStart"
+#batchvar additionalActionsProduction="garbage logging httpStart"
+#batchvar dcStatsOn=dcStatsOn
+
+
+##### Indexes directories
+
+batchvar serialization=$INDEXDIR/pppcodes.bin
+batchvar mapdbfile=$FILESTORE
+
+#####  Before and after actions
+
+function onbeforeaction {
+    #if [ $1 = 'start' ]; then
+        #echo "loading ${FILESTORE}.p into memory cache"
+        #cat ${FILESTORE}.p > /dev/null
+    #fi
+    if [ $1 = 'stop' ]; then
+        exec_batch "Calling finalization actions" "controlFile \$batchfile $vars afterBuild" "${starthosts[@]}"
+    fi
+}
