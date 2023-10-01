@@ -65,6 +65,22 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/src/main/resources/SF_v3-3.0.jar</systemPath>
         </dependency>
+        <dependency>
+            <groupId>simcloud</groupId>
+            <artifactId>simcloud</artifactId>
+            <version>1.0.0-DEVEL</version>
+            <type>jar</type>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/simcloud-1.0.0-DEVEL.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>simcloud</groupId>
+            <artifactId>simcloud-mapdb</artifactId>
+            <version>1.0.0-DEVEL</version>
+            <type>jar</type>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/simcloud-mapdb-1.0.0-DEVEL.jar</systemPath>
+        </dependency>
     </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
