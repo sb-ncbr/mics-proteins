@@ -44,7 +44,7 @@ autostart=
 description=
 
 ##################### INTERNAL APP CONFIG #####################
-java='java -cp \"$classpath\" $javaparams'
+java='java --add-opens java.base/java.lang.invoke=ALL-UNNAMED -cp \"$classpath\" $javaparams'
 ssh='sshwrap'
 telnet='/usr/bin/telnet'
 ping='ping -c1 -q'
@@ -484,6 +484,7 @@ function start() {
 		if [ -n "$debugport" ];then eval echo -n '"(debugger: $(('$debugport'))) "';fi
 		echo -n "(count: $number): "
 		if [ -z "$ping" ] || $ping $host > /dev/null 2>&1 ; then
+		  generate_start_script $host $port $number > finalStartScript.sh
 			generate_start_script $host $port $number | $ssh $host
 			echo "started"
 		else
