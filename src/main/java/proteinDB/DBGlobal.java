@@ -26,7 +26,7 @@ public class DBGlobal {
 
     public static final String IP = "147.251.21.141";
     private static final Logger LOG = Logger.getLogger(DBGlobal.class.getName());
-    private static final String INI_PATH = "c:\\Users\\Vlada\\Documents\\NetBeansProjects\\Skola\\proteins\\protein_search.ini";
+    private static final String INI_PATH = "/home/jakub/git/school/diplomka/proteins/protein_search.ini";
 
     public static Connection getConnectionFromIniFile() {
         return getConnectionFromIniFile(INI_PATH);
