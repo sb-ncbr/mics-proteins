@@ -1,0 +1,318 @@
+################################################################################
+#  This is a configuration for Similarity cloud Manager.
+#  It is formatted as standard Java properties: <key> = <value>
+#  The specific format is according to MESSIF config files
+################################################################################
+
+##########################       Entry actions     #############################
+# default action (deserialization)
+deserializeAll = deserializeIndexes startSimCloudManager <additionalActionsProduction>
+actions        = deserializeIndexes startSimCloudManager <additionalActionsProduction> 
+#actions = initIndexes startSimCloudManager insertData <actionsInTheEnd>
+
+# start empty indexes & manager
+emptyStart = initIndexes startSimCloudManager <actionsInTheEnd>
+
+# start empty indexes, manager insert data
+buildPPPcodes = initIndexes startSimCloudManager insertData <actionsInTheEnd>
+#buildPPPcodes = initIndexes startSimCloudManager <actionsInTheEnd>
+
+# initialize empty indexes
+initIndexes = initPPPCodeIndex initIDStorage 
+
+# deserialize an already created and serialized indexes
+deserializeIndexes = deserializeSearchIndex initIDStorage 
+
+
+# just the PPP-Code index
+justIndexEmpty = initPPPCodeIndex <actionsInTheEnd> 
+
+# just the MapDB key-value store
+justMapDB = initIDStorage
+
+
+# actions to run after the initial build
+afterBuild = PPPAfterBuild mapDBAfterBuild
+
+PPPAfterBuild = selectPPPIndex consolidateTree serializePPPIndexAfterBuild 
+
+mapDBAfterBuild = mapDBSelect
+# compactMapDB
+
+# finalization actions
+finalization = startSTDOutLog httpStop stopSerializePeriodically stopCommitPeriodically selectPPPIndex consolidateTree serializePPPIndex
+# finalization = startSTDOutLog stopSerializePeriodically stopCommitPeriodically selectPPPIndex consolidateTree storePPPCodes
+
+fineLogging = loggingConsoleChangeLevel
+fineLogging.param.1 = FINE
+fineLogging.descriptionAfter = turning on FINE logging
+
+serializeManager = algorithmStore
+serializeManager.param.1 = <serialization>
+serializeManager.descriptionAfter = "the 'algorithmStore' action for the manager completed successfully: <serialization>"
+
+
+######################################################################################
+#######################     		PPP-Code Insert     ####################
+######################################################################################
+
+insertData = controlFile
+insertData.param.1 = mindex.cf
+insertData.param.2 = insertData
+insertData.param.3 = datafile=<datafile>
+
+
+######################################################################################
+#######################     		PPP-Code Search index     ####################
+######################################################################################
+
+################    Initiation
+
+initPPPCodeIndex = startSearchIndex pppCodesAssign <actionsEachIndex>
+
+# start empty search index (PPP-Codes)
+startSearchIndex = controlFile
+startSearchIndex.param.1 = pppcodes.cf
+startSearchIndex.param.2 = initIndexes
+startSearchIndex.param.3 = distancefunc=<distancefunc>
+startSearchIndex.param.4 = pivotfile=<pivotfile>
+startSearchIndex.param.5 = prefix=<prefix>
+startSearchIndex.param.6 = pivots=<pivots>
+startSearchIndex.param.7 = capacity=<capacity>
+startSearchIndex.param.8 = minlevel=<minlevel>
+startSearchIndex.param.9 = indexes=<indexes>
+startSearchIndex.param.10 = locatorlength=<locatorlength>
+startSearchIndex.param.11 = useStats=<useStats:>
+startSearchIndex.param.12 = oplogfile=<oplogfile>
+
+# assign the M-Index algorithm to a variable
+pppCodesAssign = algorithmToNamedInstance
+pppCodesAssign.param.1 = pppCodes
+
+# select the currently running PPP-Codes index for serialization
+selectPPPIndex= algorithmSelectByName
+selectPPPIndex.param.1 = pppCodes
+
+# set the leaf store to the PPP-Code algorithm and serialize the index
+serializePPPIndexAfterBuild = controlFile
+serializePPPIndexAfterBuild.param.1 = pppcodes.cf
+serializePPPIndexAfterBuild.param.2 = serializeAfterBuild
+serializePPPIndexAfterBuild.param.3 = oplogfile=<oplogfile>
+serializePPPIndexAfterBuild.param.4 = serialization=algs/pppcodes.bin
+serializePPPIndexAfterBuild.before = Going to store algs/pppcodes.bin
+serializePPPIndexAfterBuild.after = Stored algs/pppcodes.bin
+
+serializePPPIndex = controlFile
+serializePPPIndex.param.1 = pppcodes.cf
+serializePPPIndex.param.2 = serialize
+serializePPPIndex.param.3 = serialization=<serialization>
+
+
+################    Deserialization and regular actions
+
+# deserialization with additional actions
+deserializeSearchIndex = deserialize pppCodesAssign
+
+# deserialize index from a specified file
+deserialize = algorithmRestore
+deserialize.param.1 = <serialization>
+
+# ONE TIME tree data consolidation on nodes where data were deleted or inserted
+consolidateTree = methodExecute
+consolidateTree.param.1 = consolidateTreeData
+
+######################     Start ID-object store     #####################
+
+#initIDStorage = createSerializator createRefineDist <dcStatsOn> execConfig startMapDBRefiner mapDBAssign
+initIDStorage = createSerializator <dcStatsOn> execConfig startMapDBRefiner multiThreadOn mapDBAssign
+
+# turns on the processing of every operation in threads
+multiThreadOn = preparePool setPool
+
+preparePool = namedInstanceReplace
+#preparePool.param.1 = java.util.concurrent.Executors.newFixedThreadPool(<threadnumber:23>)
+preparePool.param.1 = java.util.concurrent.Executors.newCachedThreadPool()
+preparePool.param.2 = threadPool
+#preparePool.descriptionAfter = "Set pool with paralelisation <threadnumber:7>"
+
+setPool = methodExecute
+setPool.param.1 = setThreadPool
+setPool.param.2 = threadPool
+
+
+createSerializator = namedInstanceAdd
+createSerializator.param.1 = messif.record.DataObjectMapDBSerializer()
+createSerializator.param.2 = objectSerializator
+
+#createRefineDist = namedInstanceReplace
+#createRefineDist.param.1 = <refinedist>
+#createRefineDist.param.2 = refineDistanceFunc
+
+dcStatsOn = namedInstanceReplace
+dcStatsOn.param.1 = messif.distance.StatisticDistanceFunc(refineDistanceFunc)
+dcStatsOn.param.2 = refineDistanceFunc
+#dcStatsOn.descriptionAfter = CREATED A DC STATISTIC FUNCTION
+
+# configuration of the executors used for the MapDB algorithm
+execConfig = propertiesCreate
+execConfig.executors.1 = messif.algorithm.executor.OperationLogger
+#execConfig.executors.2 = messif.algorithm.executor.UpdateOperationLogger
+#execConfig.redolog.filename = <oplogidstore>
+
+
+# constructor: MemoryMapDBRefiner(Serializer valueSerializer, DistanceFunc<DataObject> defaultDistanceFunc, ExtendedProperties configuration)
+#startMapDBRefiner = algorithmStart
+#startMapDBRefiner.param.1 = simcloud.idstorage.mapdb.MemoryMapDBRefiner
+#startMapDBRefiner.param.2 = objectSerializator
+#startMapDBRefiner.param.3 = refineDistanceFunc
+#startMapDBRefiner.param.4 = execConfig
+
+
+# constructor: FileMapDBRefiner(String dbFileName, Serializer valueSerializer, boolean useFullMMapped, boolean useWAL)
+startMapDBRefiner = algorithmStart
+startMapDBRefiner.param.1 = simcloud.idstorage.mapdb.FileMapDBRefiner
+#startMapDBRefiner.param.1 = simcloud.idstorage.DiskStorageHashRefiner
+startMapDBRefiner.param.2 = <mapdbfile:/tmp/mapdbfile>
+startMapDBRefiner.param.3 = objectSerializator
+startMapDBRefiner.param.4 = false
+startMapDBRefiner.param.5 = true
+startMapDBRefiner.param.6 = refineDistanceFunc
+startMapDBRefiner.param.7 = execConfig
+
+
+
+# assign the MapDB algorithm to a variable
+mapDBAssign = algorithmToNamedInstance
+mapDBAssign.param.1 = idStorage
+
+
+mapDBSelect = algorithmSelectByName
+mapDBSelect.param.1 = idStorage
+
+
+
+###############        Start and configure Similarity cloud manager    ##############
+
+startSimCloudManager = complexExecutors managerConfiguration startManager
+
+complexExecutors = randomProcessor updateProcessor queryProcessor kNNPreprocessor
+
+
+managerConfiguration = propertiesCreate
+managerConfiguration.executors.1 = messif.algorithm.executor.RunningOperationMonitor
+managerConfiguration.executors.2 = messif.algorithm.executor.OperationLogger
+managerConfiguration.executors.3 = messif.algorithm.executor.StatisticsExecutor
+managerConfiguration.oplogger.verbosity = 1
+managerConfiguration.oplogger.pretty = false
+
+startManager = algorithmStart
+startManager.param.1 = simcloud.SimCloudManager
+startManager.param.2 = pppCodes, idStorage
+startManager.param.3 = visualIndex, IDObjStore
+startManager.param.4 = managerConfiguration
+startManager.param.5 = randomProcessor
+    randomProcessor = namedInstanceConstructor
+    randomProcessor.param.1 = randomProcessor
+    randomProcessor.param.2 = true
+    randomProcessor.param.3 = simcloud.config.ChainConfig
+    randomProcessor.param.4 = messif.operation.search.GetRandomObjectsOperation
+    randomProcessor.param.5 = false
+    # preprocess the tags
+    randomProcessor.param.6 = simcloud.config.ChainItem.transformAlg(messif.operation.search.GetRandomObjectsOperation, visualIndex, simcloud.transformer.impl.IdsToOperation(), true)
+    # call the preprocessor of the query object (for internal or external query object)
+    randomProcessor.param.7 = simcloud.config.ChainItem.transformAlg(messif.operation.search.GetRandomObjectsOperation, IDObjStore, simcloud.transformer.impl.GetObjectForIDsTransformer(), true)
+
+startManager.param.6 = simcloud.config.ProcessorConfig.directAlg(messif.operation.crud.GetObjectsOperation, IDObjStore)
+startManager.param.7 = simcloud.config.ProcessorConfig.directAlg(messif.operation.info.PrintAllObjectsOperation, IDObjStore)
+startManager.param.8 = simcloud.config.ProcessorConfig.directAlg(messif.operation.info.ObjectCountOperation, IDObjStore)
+
+startManager.param.9 = simcloud.config.impl.InsertConfig(null, null, manager, IDObjStore, visualIndex)
+startManager.param.10 = simcloud.config.impl.DeleteConfig(IDObjStore, visualIndex)
+
+startManager.param.11 = updateProcessor
+    updateProcessor = namedInstanceConstructor
+    updateProcessor.param.1 = updateProcessor
+    updateProcessor.param.2 = true
+    updateProcessor.param.3 = simcloud.config.ChainConfig
+    updateProcessor.param.4 = messif.operation.crud.UpdateOperation
+    updateProcessor.param.5 = false
+    # preprocess the tags
+    # updateProcessor.param.6 = simcloud.config.ChainItem.givenConfig(tagConfigCRUD, false)
+    # call the preprocessor of the query object (for internal or external query object)
+    updateProcessor.param.6 = simcloud.config.ChainItem.directAlg(messif.operation.crud.UpdateOperation, IDObjStore, true)
+
+# processing of kNN query
+startManager.param.12 = kNNPreprocessor
+    kNNPreprocessor = namedInstanceConstructor
+    kNNPreprocessor.param.1 = kNNPreprocessor
+    kNNPreprocessor.param.2 = true
+    kNNPreprocessor.param.3 = simcloud.config.ChainConfig
+    kNNPreprocessor.param.4 = messif.operation.search.KNNOperation
+    kNNPreprocessor.param.5 = false
+    # first, try the query cache
+    #kNNPreprocessor.param.6 = simcloud.config.ChainItem.transformAlg(messif.operation.search.KNNOperation, queryCacheStr, simcloud.transformer.impl.KNNCacheQueryTransformer(200), true)
+    # call the preprocessor of the query object (for internal or external query object)
+    #kNNPreprocessor.param.6 = simcloud.config.ChainItem.givenConfig(queryPreprocessor, true)
+    # add the candidate queue into the operation and execute a parallel evaluator
+    kNNPreprocessor.param.6 = simcloud.config.ChainItem.transformAndConfig(messif.operation.search.KNNOperation,\
+            queryProcessor, simcloud.transformer.impl.AddCandidateIDQueueTransformer(messif.operation.search.KNNOperation), false)
+    # store the result into the cache
+    #kNNPreprocessor.param.8 = simcloud.config.ChainItem.transformAlg(messif.operation.search.KNNOperation,\
+    #        queryCacheStr, simcloud.transformer.impl.KNNCacheStoreTransformer(), true)
+
+    # the actual processing of a query operation via PPP-Codes (filter - generate cand. set) and key-value store (refine)
+    queryProcessor = namedInstanceConstructor
+    queryProcessor.param.1 = queryProcessor
+    queryProcessor.param.2 = true
+    queryProcessor.param.3 = simcloud.config.ChainConfig
+    queryProcessor.param.4 = messif.operation.search.RankingOperation
+    queryProcessor.param.5 = true
+    queryProcessor.param.6 = simcloud.config.ChainItem.directAlg(messif.operation.search.RankingOperation, visualIndex, false)
+    queryProcessor.param.7 = simcloud.config.ChainItem.directAlg(messif.operation.search.RankingOperation, IDObjStore, true)
+
+
+startManager.descriptionAfter = Similarity cloud manager started alright
+
+
+##############     Advanced logging     #############################
+
+### uncomment the following line if the standard log should contain only WARNINGs
+logging = controlFile
+logging.param.1 = common/conf/logging.cf
+logging.param.2 = actions
+
+startSTDOutLog = controlFile
+startSTDOutLog.param.1 = common/conf/logging.cf
+startSTDOutLog.param.2 = startSTDOutLog
+
+
+##################      Auxiliary methods        ###############################
+
+# collect garbage
+garbage = collectGarbage
+garbage.param.1 = 2000
+garbage.repeat = 3
+
+# start RMI interface with given port
+startRMI = controlFile
+startRMI.param.1 = common/conf/mindex.cf
+startRMI.param.2 = startRMI
+startRMI.param.3 = rmiport=<rmiport>
+
+
+##########################       REST API        #############################
+#
+# start the REST service API (http)
+httpStart = controlFile
+httpStart.param.1 = common/conf/rest-api.cf
+httpStart.param.2 = actions
+httpStart.param.3 = customapifile=<customapifile:common/conf/rest-api.cf>
+httpStart.param.4 = indexfield=<indexfield:caffe>
+httpStart.param.5 = indexdataclass=<indexdataclass>
+
+
+# remove the REST service API (http)
+httpStop = controlFile
+httpStop.param.1 = common/conf/rest-api.cf
+httpStop.param.2 = removeAPIs
+

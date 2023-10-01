@@ -1,0 +1,238 @@
+################################################################################
+#  This is M-Index configuration file. 
+#  It is formatted as standard Java properties: <key> = <value>
+#  The specific format is according to MESSIF config files
+################################################################################
+
+
+##########################       Entry actions     #############################
+# default action
+actions = deserializeMIndex startRMI
+
+# initialize M-Index and insert data
+#buildMIndex = initIndex algorithmInfoAll serialize
+buildMIndex = initIndex insertData algorithmInfoAll serialize
+
+# initialize empty M-Index
+initIndex = initDistanceFunc properties createMIndex
+
+# initialize empty M-Index without creating distance function object
+initIndexNoDistance = properties createMIndex
+
+# deserialize an already created M-Index
+deserializeMIndex = deserialize garbage
+# for production run call "statisticsDisable"
+
+##########################      Initialization     #############################
+
+# initialize the distance function used by the M-Index
+initDistanceFunc = createDist <useStats>
+
+createDist = namedInstanceReplace
+#createDist.param.1 = messif.distance.DataObjectDistanceFunc(<primObjName>,primaryDistanceFunction)
+createDist.param.1 = <primDist>
+createDist.param.2 = indexDistanceFunc
+
+
+wrapByStats = namedInstanceReplace
+wrapByStats.param.1 = messif.distance.DistanceWithStats(indexDistanceFunc)
+wrapByStats.param.2 = indexDistanceFunc
+
+
+# create empty M-Index algorithm
+# the properties are defined in the end of this configuration files
+createMIndex = algorithmStart
+createMIndex.param.1 = <mindexalgclass:mindex.algorithm.MIndexAlgorithm>
+createMIndex.param.2 = <algname:M-Index>
+createMIndex.param.3 = properties
+createMIndex.param.4 = mindex.
+createMIndex.param.5 = indexDistanceFunc
+
+
+##################   Serialization, deserialization      #######################
+# serialize the index into specified file
+serialize = algorithmStore
+serialize.param.1 = <serialization>
+
+# deserialize index from a specified file
+deserialize = algorithmRestore
+deserialize.param.1 = <serialization>
+
+# regular automatic serialization (if structure changed)
+serializePeriodically = methodExecute
+serializePeriodically.param.1 = checkModifiedAndStore
+serializePeriodically.param.2 = <serialization>
+serializePeriodically.repeatEvery = 1s
+
+
+##################      Auxiliary methods        ###############################
+# collect garbage
+garbage = collectGarbage
+garbage.param.1 = 2000
+garbage.repeat = 3
+
+# start RMI interface with given port
+startRMI = rmiStart
+startRMI.param.1 = <rmiport>
+startRMI.description = RMI started on port <rmiport>
+
+
+
+
+
+
+################################################################################
+##########################      Data insertion     #############################
+################################################################################
+actions = insertData
+
+# create data stream and insert
+insertData = data bulkinsertall
+
+# create data stream, filter the data to pick just given field and insert
+# filterAndInsertData = data getField bulkinsertall # TODO: remove?
+
+# create data stream, apply fashion data converter and insert
+convertAndInsertData = data pcaConvert bulkinsertall
+
+# create data stream and insert iterated just for a given number of iterations
+testInsert = data skipObjects bulkinsertrepeat
+
+
+###################      Preparation of the data   ########################
+
+# open data stream
+#data = objectStreamOpen
+#data.param.1 = <datafile>
+#data.param.2 = data
+
+data = namedInstanceReplace
+data.param.1 = proteinDB.ChainTable.getIteratorOverCompleteChainsToBeIndexedFromDB(db)
+data.param.2 = data
+
+
+
+# skip the first <skip> objects from the beginning of the stream
+skipObjects = objectStreamSkip
+skipObjects.param.1 = data
+skipObjects.param.2 = <skip:0>
+
+# assuming that the data are meta-objects, pick given single object from them
+#getField = objectStreamConvert
+#getField.param.1 = data
+#getField.param.2 = .<indexfield:caffe>
+
+# convert the original high dimensional vectors (e.g. caffe) to lower dimensions using PCA
+pcaConvert = objectStreamConvert
+pcaConvert.param.1 = data
+pcaConvert.param.2 = messif.data.processing.PCAConverter(<convertmatrix>, caffe, caffe_pca, <replace_by_pca:true>)
+pcaConvert.descriptionAfter = created object PCA converter from file: <convertmatrix>
+
+
+# the actual insert of all data in the stream
+bulkinsertall = bulkinsert statisticsGlobal
+bulkinsertall.repeatUntilException = java.util.NoSuchElementException
+
+# alternative (for testing)
+bulkinsertrepeat = bulkinsert
+bulkinsertrepeat.repeat = 2
+
+# single bulk insert operation execution
+bulkinsert = operationExecute
+bulkinsert.param._class = messif.operation.crud.InsertOperation
+bulkinsert.param.records = data:<bulksize:10000>
+bulkinsert.param.SKIP_CHECK = true
+#bulkinsert.param.fields_to_return = ["*"]
+bulkinsert.description = "inserting <bulksize:10000> records"
+
+
+#####################     Data Deletion    ###############################
+
+deleteByLocator = operationExecute
+deleteByLocator.param.1 = messif.operations.data.DeleteByLocatorOperation
+deleteByLocator.param.2 = <deleteids>
+#deleteByLocator.param.2 = 011180000,011450000,011670000
+
+
+#####################     Data synchronization     ######################
+
+printAllObjects = operationExecute
+printAllObjects.param.1 = messif.operations.query.PrintAllObjectsOperation
+printAllObjects.param.2 = <printJustIDs:true>
+printAllObjects.param.3 = <allObjectsFile:collection.ids>
+
+
+#####################     Data synchronization     ######################
+
+printGivenFields = operationExecute
+printGivenFields.param.1 = messif.operations.query.PrintAllObjectsOperation
+printGivenFields.param.2 = false
+printGivenFields.param.3 = <allObjectsFile:collection.data.gz>
+printGivenFields.param.4 = <fieldsToPrint>
+printGivenFields.param.5 = true
+
+
+#####################     Print all objects one by one  ######################
+
+printObjectsOneByOne = printObjectsPrepare setOneByOneParam operationExecuteAgain
+printObjectsOneByOne.description = "printing objects one by one"
+
+printObjectsPrepare = operationPrepare
+printObjectsPrepare.param.1 = messif.operations.query.PrintAllObjectsOperation
+printObjectsPrepare.param.2 = <printJustIDs:true>
+printObjectsPrepare.param.3 = <allObjectsFile:collection.ids>
+
+setOneByOneParam = operationParam
+setOneByOneParam.param.1 = ONE_BY_ONE
+setOneByOneParam.param.2 = 60000000
+setOneByOneParam.param.3 = java.lang.Long
+
+
+################################################################################
+##########################   Data insertion  END   #############################
+################################################################################
+
+
+
+
+
+
+#####################       Create M-Index properties    #######################
+# create the M-Index configuration from all items starting with "properties."
+properties = propertiesCreate
+# the distance function as a string
+# properties.mindex.distance_func = <distancefunc>
+# the file with the pivots
+properties.mindex.pivot.file = <pivotfile>
+# if specified (and positive), then this number is taken regardless of content of the pivot file
+properties.mindex.pivot.number = <pivots>
+# the minimum dynamic M-Index level
+properties.mindex.minlevel = <minlevel>
+# the maximum dynamic M-Index level
+properties.mindex.maxlevel = <prefix>
+# use precomputed pivot permutation, if passed from the outside
+#   set to true (default) if initialization of a bulk of objects should be parallelized
+properties.mindex.parallel_init = true
+# if true, then inserted data are checked for duplicates and every object is then maximally once in the stored data
+properties.mindex.remove_duplicates = false
+
+# capacity of the leaf PPP-Code node
+properties.mindex.bucket.capacity = <capacity>
+# the capacity is in bytes
+properties.mindex.bucket.occupation_as_bytes = false
+
+
+################## settings, that should be used only for the pure M-Index (not PPP-Codes)
+properties.mindex.precise.search = false
+
+# store the precomputed distances for pivot filtering (increases I/O, decreases comp. costs)
+properties.mindex.use_pivot_filtering = <pivotfiltering:false>
+
+# class of buckets created at the cell tree leaf nodes
+properties.mindex.bucket.class = messif.bucket.impl.MemoryStorageBucket
+# consider using this class for precise search
+#properties.mindex.bucket.class = messif.bucket.impl.MemoryStorageMIndexKeyBucket
+
+#properties.mindex.bucket.class = messif.bucket.impl.DiskBlockBucket
+#properties.mindex.bucket.params.oneStorage = false
+#properties.mindex.bucket.params.dir = <diskbucketdir:diskbuckets>

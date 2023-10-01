@@ -1,0 +1,177 @@
+################################################################################
+#  This is MESSIF configuration file for PPP-Codes; it exploits and requires the mindex.cf file.
+#  It is formatted as standard Java properties: <key> = <value>
+#  The specific format is according to MESSIF config files
+################################################################################
+
+##########################       Entry actions     #############################
+# default action
+actions = deserializeIndex
+
+# initialize PPP-Codes and insert data
+#buildIndex = initIndexes <additionalActionsBefore> insertData serializeAfterBuild algorithmInfo printRichInfo 
+buildIndex = initIndexes <additionalActionsBefore> serializeAfterBuild algorithmInfo printRichInfo 
+
+
+# initialize empty distance functions
+initAllDists = primDistInit createRefineDist initDistanceFunc
+
+# initialize empty PPP-Codes
+initIndexes = initDB initPivotsFromDB primDistInit createRefineDist initDistanceFunc buildOverlays initManager
+
+initDB = namedInstanceReplace
+initDB.param.1 = proteinDB.DBGlobal.getConnectionFromIniFile(<iniFile>)
+initDB.param.2 = db
+
+primDistInit = namedInstanceReplace
+primDistInit.param.1 = <primDist>
+primDistInit.param.2 = primaryDistanceFunction
+
+createRefineDist = namedInstanceReplace
+#createRefineDist.param.1 = messif.distance.DataObjectDistanceFunc(<primObjName>,primaryDistanceFunction)
+createRefineDist.param.1 = <refinedist>
+createRefineDist.param.2 = refineDistanceFunc
+
+# serialize the PPP-Codes index after the initial build
+# serializeAfterBuild = selectPPPIndex createLeafStorage setLeafStorage serialize
+serializeAfterBuild = execConfig setConfig serialize
+
+# deserialize an already created M-Index
+# orig deserializeIndex = deserialize <additionalActionsBefore> <additionalActionsAfter> garbage
+deserializeIndex = deserialize execConfig setConfig <additionalActionsBefore> <additionalActionsAfter> garbage
+# for production run call "statisticsDisable"
+
+# replace the LocatorConvertor
+replaceConvertor = deserialize locatorToIntConvertor callReplaceConvertor serialize
+
+initPivotsFromDB = namedInstanceReplace
+initPivotsFromDB.param.1 = proteinDB.PivotTables.getPivotsFromDB(db,true,false,true,null)
+initPivotsFromDB.param.2 = allPivots
+
+
+##############       start  individual indexes and the multi-algorithm   ###########
+
+# create an instance of the distance function
+initDistanceFunc = controlFile
+initDistanceFunc.param.1 = mindex.cf
+initDistanceFunc.param.2 = initDistanceFunc
+#initDistanceFunc.param.3 = distancefunc=<distancefunc>
+#initDistanceFunc.param.3 = distancefunc=<refineDist>
+#initDistanceFunc.param.3 = distancefunc=<refineDistanceFunc>
+
+# start individual M-Indexes, each on a part of the pivot file
+buildOverlays = pivotSet createParameter buildSingleMIndex
+buildOverlays.repeat = <indexes>
+
+# prepare a partial pivot set
+pivotSet = namedInstanceReplace
+pivotSet.param.1 = mindex.MetricIndexes.getPartialPivotFile(allPivots,<indexes>,<buildOverlays>)
+
+# put the name of the pivot file into a variable (named instance)
+createParameter = namedInstanceEcho
+createParameter.param.1 = pivotSet
+createParameter.assign = partialPivotFile
+
+# initialize one individual M-Index
+buildSingleMIndex = controlFile
+buildSingleMIndex.param.1 = mindex.cf
+buildSingleMIndex.param.2 = initIndexNoDistance
+buildSingleMIndex.param.3 = useStats=<useStats:>
+buildSingleMIndex.param.4 = pivotfile=<partialPivotFile>
+buildSingleMIndex.param.5 = prefix=<prefix>
+buildSingleMIndex.param.6 = pivots=<pivots>
+buildSingleMIndex.param.7 = capacity=<capacity>
+buildSingleMIndex.param.8 = minlevel=<minlevel>
+buildSingleMIndex.param.9 = algname=PPP-Code overlay <buildOverlays>
+buildSingleMIndex.param.10 = mindexalgclass=pppcodes.algorithm.PPPCodeSingleAlgorithm
+
+
+# start the M-Index manager (multi-overlay algorithm)
+initManager = getIndexes locatorToIntConvertor simpleConfig startManager
+
+# store the list of already running M-Index overlays to a variable
+getIndexes = algorithmToNamedInstance
+getIndexes.param.1 = mIndexList
+getIndexes.param.2 = all
+
+locatorToIntConvertor = namedInstanceAdd
+# locatorlength = 0 means that the integers are not padded with zeros
+locatorToIntConvertor.param.1 = pppcodes.ids.DirectString2IntConverter(<locatorlength:0>)
+
+
+# configuration that is used for the fresh created PPP-Codes during the initial build
+simpleConfig = propertiesCreate
+simpleConfig.executors.1 = messif.algorithm.executor.OperationLogger
+
+# actually start the multi-overlay algorithm
+startManager = algorithmStart
+startManager.param.1 = pppcodes.algorithm.PPPCodeAlgorithm
+startManager.param.2 = mIndexList
+startManager.param.3 = locatorToIntConvertor
+startManager.param.4 = simpleConfig
+
+
+# configuration of the executors used for the PPP-Code algorithm
+execConfig = propertiesCreate
+execConfig.executors.1 = messif.algorithm.executor.OperationLogger
+#execConfig.executors.2 = messif.algorithm.executor.UpdateOperationLogger
+#execConfig.redolog.filename = <oplogfile>
+#messif.algorithm.executor.StatisticsExecutor
+execConfig.executors.2 = messif.algorithm.executor.StatisticsExecutor
+
+setConfig = methodExecute
+setConfig.param.1 = setConfiguration
+setConfig.param.2 = execConfig
+
+
+consolidateTree = methodExecute
+consolidateTree.param.1 = consolidateTreeData
+
+#printRichInfo = controlFile
+#printRichInfo.param.1 = search.cf
+#printRichInfo.param.2 = printRichInfo
+#printRichInfo.param.3 = serialization=<serialization>
+#printRichInfo.param.4 = indexdir=<indexdir>
+
+callReplaceConvertor = methodExecute
+callReplaceConvertor.param.1 = setLocatorConvertor
+callReplaceConvertor.param.2 = locatorToIntConvertor
+callReplaceConvertor.descriptionAfter = "replaced convertor for new locator length <locatorlength>"
+
+
+##################   Serialization, deserialization      #######################
+# serialize the index into specified file
+serialize = algorithmStore
+serialize.param.1 = <serialization>
+serialize.descriptionAfter = "the 'algorithmStore' action for PPP-Codes completed successfully: <serialization>"
+
+# deserialize index from a specified file
+deserialize = algorithmRestore
+deserialize.param.1 = <serialization>
+
+# consolidate the tree before the initial serialization
+# serializeAfterBuild = selectPPPIndex consolidateTree serialize
+# serializeAfterBuild = selectPPPIndex consolidateTree serialize storeLocatorIndex
+
+# select the currently running PPP-Codes index for serialization
+# selectPPPIndex= algorithmSelect
+# selectPPPIndex.param.1 = <indexes>
+
+# stores the locator-object hash index into specified file
+storeLocatorIndex = namedInstanceReplace
+storeLocatorIndex.param.1 = storageAndRefiner.storeIndexToFile(<locatorIndexHash>)
+
+
+##################      Auxiliary methods        ###############################
+
+# collect garbage
+garbage = collectGarbage
+garbage.param.1 = 2000
+garbage.repeat = 3
+
+# start RMI interface with given port
+startRMI = controlFile
+startRMI.param.1 = common/conf/mindex.cf
+startRMI.param.2 = startRMI
+startRMI.param.3 = rmiport=<rmiport>
+
