@@ -484,7 +484,7 @@ function start() {
 		if [ -n "$debugport" ];then eval echo -n '"(debugger: $(('$debugport'))) "';fi
 		echo -n "(count: $number): "
 		if [ -z "$ping" ] || $ping $host > /dev/null 2>&1 ; then
-		  generate_start_script $host $port $number > finalStartScript.sh
+		  generate_start_script $host $port $number > "${0%.sh}-finalStartScript.sh"
 			generate_start_script $host $port $number | $ssh $host
 			echo "started"
 		else
