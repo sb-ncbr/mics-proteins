@@ -1,0 +1,38 @@
+HOST=localhost
+PORT=20004
+RMIPORT=$((PORT-1))
+HTTPPORT=$((PORT+1))
+
+#to create sketch of the query object!
+#GESAMTLIBPATH=${GESAMTLIBPATH:-/data/PDBe_binary}
+GESAMTLIBPATH=${GESAMTLIBPATH:-/mnt/PDBe_clone_binary}
+
+
+PRIMDIST="messif.distance.impl.ProteinDistanceDBImpl(${GESAMTLIBPATH},0)"
+REFINEDISTFUNC="messif.distance.impl.ProteinDistanceDBImpl(${GESAMTLIBPATH},0.6)"
+
+batchvar iniFile="/home/ubuntu/ProteinSearch/utils/protein_search.ini"
+
+batchvar pivotsLong=true
+batchvar primDist=${PRIMDIST}
+batchvar refinedist=${REFINEDISTFUNC}
+
+starthosts=$HOST:$PORT
+javaparams="-Xmx40g -Djava.net.preferIPv4Addresses=true"
+
+javahome="/usr/lib/jvm/jdk-1.8"
+classdir=../05_PPP-codes/jars
+mainclass="messif.appl.HttpApplication $RMIPORT -httpThreads 15"
+batchvar rmiPort=$RMIPORT
+
+batchfile=http-api.cf
+
+batchcmd=startHttpApi
+
+batchvar serialization=algs/sketchesOnly_512_sk1024b.bin
+batchvar csvPairsForSketches="../data/csvPivotPairs/512/1024_pairs.csv"
+batchvar pivotCountForSketches=489
+
+batchvar primObjName=proteinObj
+batchvar skLength=1024
+batchvar pcum="0.75"
