@@ -1,0 +1,182 @@
+###############################################################################
+#  This is configuration file defining the HTTP REST service API for M-Index.
+#
+#  It is formatted as standard Java properties: <key> = <value>
+#  The specific format is according to MESSIF config files
+###############################################################################
+
+# entry action
+startHttpApi = deserialize prepareMappingOfDists context_httpSearch context_httpProgress context_httpInsert context_httpDelete context_httptmp
+
+
+##########################      Preparation #############################
+
+deserialize = algorithmRestore
+deserialize.param.1 = <serialization>
+
+
+## Distances
+
+prepareMappingOfDists = initDB setHammingDist primDistInit pivots setCsvMapping setCsvForSketches setSketchFieldName setMappingOfDists transformator
+
+setHammingDist = namedInstanceReplace
+setHammingDist.param.1 = messif.distance.impl.HammingDistanceLongs()
+
+primDistInit = namedInstanceReplace
+primDistInit.param.1 = <primDist>
+primDistInit.param.2 = primaryDistanceFunction
+
+pivots = namedInstanceReplace
+pivots.param.1 = proteinDB.PivotTables.getPivotsFromDB(db,<pivotsLong>,true,null)
+
+setCsvMapping = namedInstanceReplace
+setCsvMapping.param.1 = java.lang.String(Threshold_tables/512pivots/<skLength>b_<pcum>pcum.csv)
+
+setCsvForSketches = namedInstanceReplace
+setCsvForSketches.param.1 = java.lang.String(<csvPairsForSketches>)
+
+setSketchFieldName = namedInstanceReplace
+setSketchFieldName.param.1 = java.lang.String(sk<skLength>_long)
+
+setMappingOfDists = namedInstanceReplace
+setMappingOfDists.param.1 = messif.distance.impl.SecondaryFilteringByHammingDistanceFunction(setHammingDist,setCsvMapping,setSketchFieldName,setSketchFieldName)
+setMappingOfDists.param.2 = mapping
+
+transformator = namedInstanceReplace
+transformator.param.1 = sf.objects.sketchcreator.impl.GenHyperplane(primaryDistanceFunction,null,setCsvForSketches)
+
+## Prepare query
+
+prepareQuery = wrapQuery addJobIDToQuery addDBConnToQuery addCachedDists addSketchToQuery setRange
+
+initDB = namedInstanceReplace
+initDB.param.1 = proteinDB.DBGlobal.getConnectionFromIniFile(<iniFile>)
+initDB.param.2 = db
+
+
+addDBConnToQuery = namedInstanceReplace
+addDBConnToQuery.param.1 = messif.distance.impl.ProteinDistanceDBImpl.setDB(query,db)
+addDBConnToQuery.param.2 = query
+
+
+wrapQuery = namedInstanceReplace
+wrapQuery.param.1 = tools.ToolsProteins.wrapProteinObject(<queryid!>,<iniFile>,true)
+wrapQuery.param.2 = query
+
+addSketchToQuery = namedInstanceReplace
+addSketchToQuery.param.1 = main.tools.Tools.addPrecomputedDistancesAndSketchesToObj(query,pivots,primaryDistanceFunction,transformator)
+addSketchToQuery.param.2 = query
+
+
+addJobIDToQuery = jobIdAsString addJobIDAsQueryParam
+
+jobIdAsString = namedInstanceReplace
+jobIdAsString.param.1 = java.lang.String(<job_id!>)
+jobIdAsString.param.2 = jobId
+
+addJobIDAsQueryParam = namedInstanceReplace
+addJobIDAsQueryParam.param.1 = messif.data.DataObject.addField(query,job_id,jobId)
+addJobIDAsQueryParam.param.2 = query
+#addJobIDAsQueryParam.descriptionAfter = JobID added to the query object
+
+storeLongDistancesToDB = namedInstanceReplace
+storeLongDistancesToDB.param.1 = messif.distance.impl.ProteinDistanceDBImpl.storeLongDistsToDB()
+
+
+addCachedDists = namedInstanceReplace
+addCachedDists.param.1 = proteinDB.StatsCounter.addCachedDists(query,<pivotCountForSketches>,true)
+addCachedDists.param.2 = query
+
+setRange = primDistRange sketchRange
+
+########## progress
+
+putDownProgress = getProgress printProgress
+
+getProgress = namedInstanceReplace
+getProgress.param.1 = proteinDB.StatsCounter.getJobProgressMessage(<job_id!>)
+getProgress.param.2 = progress
+
+printProgress = namedInstanceEcho
+printProgress.param.1 = progress
+
+primDistRange = namedInstanceReplace
+primDistRange.param.1 = java.lang.Float.parseFloat(<radius:0.5>)
+
+sketchRange = namedInstanceReplace
+sketchRange.param.1 = mapping.hammingDistanceRangeForPrimDistRange(primDistRange)
+
+
+########## Run query
+
+approxQuery = operationExecute
+approxQuery.param._class = messif.operation.search.KNNRangeOperation
+approxQuery.param.query_record = query
+approxQuery.param.k = <k:30>
+approxQuery.param.radius = sketchRange
+
+
+#################    Search API and search action    ##########################
+
+# search operation for text-encoded data
+context_httpSearch = httpAddContext
+context_httpSearch.param.1 = /search
+context_httpSearch.param.2 = prepareQuery approxQuery jsonAnswer storeLongDistancesToDB
+context_httpSearch.descriptionAfter = Context of searching added
+
+# asks the distance function fot the progress
+context_httpProgress = httpAddContext
+context_httpProgress.param.1 = /get_progress
+context_httpProgress.param.2 = putDownProgress
+context_httpProgress.descriptionAfter = Context of progress added
+
+context_httptmp = httpAddContext
+context_httptmp.param.1 = /tmp
+context_httptmp.param.2 = primDistRange sketchRange tmp
+
+tmp = namedInstanceEcho
+tmp.param.1 = sketchRange
+
+
+
+
+# print out the answer in JSON format
+jsonAnswer = operationAnswer
+jsonAnswer.param.1 = false
+#jsonAnswer.description = [
+#jsonAnswer.descriptionAfter= ]
+
+closeDB = namedInstanceReplace
+closeDB.param.1 = proteinDB.DBGlobal.closeStatementAndDB(query)
+
+
+#################     Insert API and insert action     ########################
+
+# insert a new object created from text representation
+context_httpInsert = httpAddContext
+context_httpInsert.param.1 = /insert
+context_httpInsert.param.2 = insert
+context_httpInsert.param.3 = insertQuery=extractor
+
+# operation inserting new object 
+insert = operationExecute
+insert.param.1 = messif.operations.data.InsertOperation
+insert.param.2 = insertQuery
+insert.descriptionAfter = Insert operation finished successfully
+
+
+##################     Delete API and delete action     #######################
+
+# delete given object created from text representation
+context_httpDelete = httpAddContext
+context_httpDelete.param.1 = /delete
+context_httpDelete.param.2 = delete
+context_httpDelete.param.3 = deleteQuery=extractor
+
+# operation deleteing new object 
+delete = operationExecute
+delete.param.1 = messif.operations.data.DeleteOperation
+delete.param.2 = deleteQuery
+delete.param.3 = 1
+delete.param.4 = true
+delete.descriptionAfter = Delete operation finished successfully
