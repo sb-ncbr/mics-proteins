@@ -1,0 +1,37 @@
+source pppcodes.defaults
+
+HOST=localhost
+PORT=20000
+RMIPORT=$((PORT+1))
+HTTPPORT=$((PORT+2))
+
+
+
+starthosts=$HOST:$PORT
+javaparams="-Xmx40g -Djava.net.preferIPv4Addresses=true"
+
+javahome="/usr/lib/jvm/jdk-1.8"
+classdir=jars
+mainclass="messif.appl.HttpApplication $RMIPORT -httpThreads 15"
+batchvar rmiPort=$RMIPORT
+
+
+
+batchfile=http-api.cf
+
+batchcmd=startHttpApi
+
+batchvar threadnumber=23
+batchvar serialization=algs/pppcodes.bin
+batchvar csvPairsForSketches="../data/csvPivotPairs/512/1024_pairs.csv"
+
+
+batchvar primObjName=proteinObj
+batchvar skLength=1024
+batchvar cands="5000"
+batchvar pcum="0.75"
+batchvar k=30
+
+batchvar pivotsLong=true
+
+#batchvar jsonSketches=${DATAFILE}
