@@ -1,0 +1,20 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="PPPCodes build" type="Application" factoryName="Application">
+    <option name="ALTERNATIVE_JRE_PATH" value="openjdk-20" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <classpathModifications>
+      <entry path="$PROJECT_DIR$/jars" />
+      <entry path="$PROJECT_DIR$/jars/mindex-3.0.0-DEVEL.jar" />
+      <entry path="$PROJECT_DIR$/jars/ppp-codes-3.0.0-DEVEL.jar" />
+      <entry path="$PROJECT_DIR$/jars/trove4j-3.0.3.jar" />
+      <entry path="$PROJECT_DIR$/jars/mapdb-1.0.10-DAVID.jar" />
+    </classpathModifications>
+    <option name="MAIN_CLASS_NAME" value="messif.appl.HttpApplication" />
+    <module name="proteins" />
+    <option name="PROGRAM_PARAMETERS" value="21512 -httpThreads 50 -httpBacklog 100 20512 $PROJECT_DIR$/manager-pppcodes.cf rmiPort='21512' iniFile='protein_search.ini' primObjName='proteinObj' primDist='messif.distance.impl.ProteinDistanceDBImpl(/mnt/PDBe_clone_binary,0)' pivots='512' minlevel='1' capacity='0' prefix='6' indexes='4' locatorlength='0' actionsInTheEnd='statisticsDisable garbage' useStats='' visualfield='proteinObj' refinedist='messif.distance.impl.ProteinDistanceDBImpl(/mnt/PDBe_clone_binary,0.6)' serialization='algs/pppcodes.bin' mapdbfile='algs/mapdb/filestore' buildPPPcodes" />
+    <option name="VM_PARAMETERS" value="--add-opens java.base/java.lang.invoke=ALL-UNNAMED -Xmx80g -XX:+UseG1GC -XX:TargetSurvivorRatio=1 -XX:NewSize=800m -Djgroups.tcp.address=localhost -Djgroups.tcp.port= -Djgroups.mping.mcast_port= -Djgroups.bind_addr=localhost -Djava.library.path=$PROJECT_DIR$/external_dependencies:/usr/java/packages/lib:/usr/lib64:/lib64:/lib:/usr/lib" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
