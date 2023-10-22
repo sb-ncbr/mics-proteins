@@ -44,8 +44,8 @@ public class StatsCounter {
         JOB_TIME_STAMP = new ConcurrentHashMap<>();
     }
 
-    public static int incrementDCToBeDone(String jobId) {
-        return incrementCounter(jobId, SEARCH_DC_EXPECTED_COUNTER);
+    public static void incrementDCToBeDone(String jobId) {
+        incrementCounter(jobId, SEARCH_DC_EXPECTED_COUNTER);
     }
 
     public static void incrementCached(String jobId) {

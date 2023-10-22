@@ -2,7 +2,7 @@
   <configuration default="false" name="WebAppRebuildSeqScanAlgs" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="algBuild.WebAppRebuildSeqScanAlgs" />
     <module name="proteins" />
-    <option name="PROGRAM_PARAMETERS" value="sequential_sketches/algs/sketchesOnly_64_from_512_sk194b.bin sequential_sketches/algs/sketchesOnly_512_from_512_sk194b.bin ./protein_search.ini" />
+    <option name="PROGRAM_PARAMETERS" value="sequential_sketches/algs/sketchesOnly_64_from_512_sk194b.bin sequential_sketches/algs/sketchesOnly_512_sk1024b.bin ./protein_search.ini" />
     <option name="VM_PARAMETERS" value="--add-opens java.base/java.lang.invoke=ALL-UNNAMED" />
     <extension name="coverage">
       <pattern>
