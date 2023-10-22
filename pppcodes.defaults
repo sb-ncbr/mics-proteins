@@ -15,8 +15,7 @@ batchvar rmiPort=$RMIPORT
 batchvar iniFile=/home/ubuntu/ProteinSearch/utils/protein_search.ini
 
 
-#GESAMTLIBPATH=${GESAMTLIBPATH:-/data/PDBe_binary}
-GESAMTLIBPATH=${GESAMTLIBPATH:-/mnt/PDBe_clone_binary}
+GESAMTLIBPATH=${GESAMTLIBPATH:-/mnt/data-ssd/PDBe_binary}
 
 PRIMOBJNAME=${PRIMOBJNAME:-proteinObj}
 batchvar primObjName=$PRIMOBJNAME

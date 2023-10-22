@@ -4,8 +4,7 @@ RMIPORT=$((PORT-1))
 HTTPPORT=$((PORT+1))
 
 #to create sketch of the query object!
-#GESAMTLIBPATH=${GESAMTLIBPATH:-/data/PDBe_binary}
-GESAMTLIBPATH=${GESAMTLIBPATH:-/mnt/PDBe_clone_binary}
+GESAMTLIBPATH=${GESAMTLIBPATH:-/mnt/data-ssd/PDBe_binary}
 
 
 PRIMDIST="messif.distance.impl.ProteinDistanceDBImpl(${GESAMTLIBPATH},0)"
@@ -30,7 +29,7 @@ batchfile=http-api.cf
 batchcmd=startHttpApi
 
 batchvar serialization=algs/sketchesOnly_512_sk1024b.bin
-batchvar csvPairsForSketches="../data/csvPivotPairs/512/1024_pairs.csv"
+batchvar csvPairsForSketches="csvPivotPairs/512/1024_pairs.csv"
 batchvar pivotCountForSketches=489
 
 batchvar primObjName=proteinObj

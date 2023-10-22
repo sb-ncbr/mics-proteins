@@ -35,7 +35,7 @@ public class ProteinNativeQScoreDistance implements Serializable {
             // parameter 0.6 is inherent parametr in C library that was examined to speed-up distance evaluation
             // while well approximating the geometric similarity of protein structures
             if (gesamtLibraryPath == null) {
-                init("/mnt/data/PDBe_clone_binary");
+                init("/mnt/data/PDBe_clone_binary"); //todo undo hardcoding
             } else {
                 init(gesamtLibraryPath);
             }

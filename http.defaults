@@ -23,7 +23,7 @@ batchcmd=startHttpApi
 
 batchvar threadnumber=23
 batchvar serialization=algs/pppcodes.bin
-batchvar csvPairsForSketches="../data/csvPivotPairs/512/1024_pairs.csv"
+batchvar csvPairsForSketches="csvPivotPairs/512/1024_pairs.csv"
 
 
 batchvar primObjName=proteinObj
