@@ -18,6 +18,12 @@ Use `.cf` files to adjust what messiff does.
 
 You need to add `--add-opens java.base/java.lang.invoke=ALL-UNNAMED` for java to start this app.
 
+For running locally with connection to remote database a ssh tunel is recomended
+
+```shell
+ssh -L 13306:localhost:3306 -T protein-jo
+```
+
 ## Contents
 
 This projects groups together later part of search assembly.

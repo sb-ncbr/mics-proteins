@@ -1,0 +1,21 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="SeqScan 64 http start" type="Application" factoryName="Application">
+    <option name="ALTERNATIVE_JRE_PATH" value="openjdk-20" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <classpathModifications>
+      <entry path="$PROJECT_DIR$/jars" />
+      <entry path="$PROJECT_DIR$/jars/mindex-3.0.0-DEVEL.jar" />
+      <entry path="$PROJECT_DIR$/jars/ppp-codes-3.0.0-DEVEL.jar" />
+      <entry path="$PROJECT_DIR$/jars/trove4j-3.0.3.jar" />
+      <entry path="$PROJECT_DIR$/jars/mapdb-1.0.10-DAVID.jar" />
+    </classpathModifications>
+    <option name="MAIN_CLASS_NAME" value="messif.appl.HttpApplication" />
+    <module name="proteins" />
+    <option name="PROGRAM_PARAMETERS" value="20010 http-api.cf iniFile=../protein_search.ini pivotsLong='true' primDist='messif.distance.impl.ProteinDistanceDBImpl($USER_HOME$/Documents/pdbe_data/PDBe_binary,0)' refinedist='messif.distance.impl.ProteinDistanceDBImpl($USER_HOME$/Documents/pdbe_data/PDBe_binary,0.6)' rmiPort='20003' serialization='algs/sketchesOnly_512_sk1024b.bin' csvPairsForSketches='csvPivotPairs/512/1024_pairs.csv' pivotCountForSketches='489' primObjName='proteinObj' skLength='1024' pcum='0.75' pivotsLong='false' primDist='messif.distance.impl.ProteinDistanceDBImpl($USER_HOME$/Documents/pdbe_data/PDBe_binary,0)' refinedist='messif.distance.impl.ProteinDistanceDBImpl($USER_HOME$/Documents/pdbe_data/PDBe_binary,0.6)' rmiPort='20009' serialization='algs/sketchesOnly_64_from_512_sk194b.bin' pivotCountForSketches='61' csvPairsForSketches='csvPivotPairs/512/64_512/320_pairs.csv' primObjName='proteinObj' skLength='194' startHttpApi" />
+    <option name="VM_PARAMETERS" value="--add-opens java.base/java.lang.invoke=ALL-UNNAMED -Xmx80g -XX:+UseG1GC -XX:TargetSurvivorRatio=1 -XX:NewSize=800m -Djgroups.tcp.address=localhost -Djgroups.tcp.port= -Djgroups.mping.mcast_port= -Djgroups.bind_addr=localhost -Djava.library.path=$PROJECT_DIR$/external_dependencies:/usr/java/packages/lib:/usr/lib64:/lib64:/lib:/usr/lib" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/sequential_sketches" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
