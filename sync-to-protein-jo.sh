@@ -28,7 +28,9 @@ rsync -av /home/jakub/git/school/diplomka/proteins/out/artifacts/proteins_jar/pr
 rsync -av sequential_sketches/rebuildPPPCodes.sh             protein-jo:/home/ubuntu/protein-search/06_SeqScanOnSketches/
 
 # http dependencies
-# todo together with new destination
+rsync -av sequential_sketches/algs/.gitkeep           protein-jo:/home/ubuntu/protein-search/06_SeqScanOnSketches/algs/
+rsync -av sequential_sketches/csvPivotPairs/          protein-jo:/home/ubuntu/protein-search/06_SeqScanOnSketches/csvPivotPairs/
+rsync -av sequential_sketches/Threshold_tables/       protein-jo:/home/ubuntu/protein-search/06_SeqScanOnSketches/Threshold_tables/
 
 # http runners
 rsync -av sequential_sketches/http-api.cf             protein-jo:/home/ubuntu/protein-search/06_SeqScanOnSketches/

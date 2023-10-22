@@ -21,7 +21,7 @@ batchcmd=startHttpApi
 
 batchvar serialization=algs/sketchesOnly_64_from_512_sk194b.bin
 batchvar pivotCountForSketches=61
-batchvar csvPairsForSketches="../data/csvPivotPairs/512/64_512/320_pairs.csv"
+batchvar csvPairsForSketches="csvPivotPairs/512/64_512/320_pairs.csv"
 
 batchvar primObjName=proteinObj
 batchvar skLength=194
