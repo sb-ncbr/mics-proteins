@@ -3,7 +3,7 @@ name: Draft a Release and Upload Asset
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - VERSION
 
