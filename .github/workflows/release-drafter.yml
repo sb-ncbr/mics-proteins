@@ -1,0 +1,38 @@
+name: Draft a Release and Upload Asset
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - VERSION
+
+jobs:
+  create_draft_release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Get the version
+        id: get_version
+        run: echo "::set-output name=VERSION::$(cat VERSION)"
+
+      - name: Create a release draft
+        id: release-draft
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          prerelease: false
+          fail_on_unmatched_files: true
+          name: Release ${{ steps.get_version.outputs.VERSION }}
+          body_path: Release.txt
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          files: |
+            ./remote_orchestration/protein-search-daemon.service
+            ./out/artifacts/proteins_jar/proteins.jar
+            
+
