@@ -21,6 +21,11 @@ jobs:
         id: get_version
         run: echo "::set-output name=VERSION::$(cat VERSION)"
 
+      - name: Zip the jars
+        uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r release.zip jars ppp_codes sequential_sketches
+
       - name: Create a release draft
         id: release-draft
         uses: softprops/action-gh-release@v1
@@ -34,5 +39,6 @@ jobs:
           files: |
             ./remote_orchestration/protein-search-daemon.service
             ./out/artifacts/proteins_jar/proteins.jar
+            ./VERSION
             
 
