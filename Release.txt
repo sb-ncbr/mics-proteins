@@ -1,1 +1,1 @@
-Test release of proteins project
+Full release
