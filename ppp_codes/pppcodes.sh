@@ -42,6 +42,7 @@ starthosts=()
 respawn=
 autostart=
 description=
+librariesdir='/usr/local/lib'
 
 ##################### INTERNAL APP CONFIG #####################
 java='java --add-opens java.base/java.lang.invoke=ALL-UNNAMED -cp \"$classpath\" $javaparams'
@@ -226,14 +227,8 @@ if [ -d "$classdir" ];then
 	done
 fi
 
-### If class dir contains libraries, add it to java.library.path
-libfiles=0
-for i in "$classdir/"*.so;do
-	libfiles=1
-done
-if [ $libfiles = 1 ];then
-	java="$java -Djava.library.path=$classdir"
-fi
+### Add standard path to java.library.path
+java="$java -Djava.library.path=$librariesdir"
 
 ### Expand debug, jmx, profiler and respawn
 if [ -n "$debugport" ];then java="$java $debug\$(($debugport))";fi

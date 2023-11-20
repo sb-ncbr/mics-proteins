@@ -12,6 +12,7 @@ batchvar refinedist=${REFINEDISTFUNC}
 starthosts=$HOST:$PORT
 javaparams="-Xmx40g -Djava.net.preferIPv4Addresses=true"
 
+classdir=jars
 mainclass="messif.appl.HttpApplication $RMIPORT"
 batchvar rmiPort=$RMIPORT
 

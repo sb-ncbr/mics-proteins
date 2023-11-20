@@ -12,7 +12,7 @@ batchvar rmiPort=$RMIPORT
 
 #########################################################
 
-batchvar iniFile=../protein_search.ini
+batchvar iniFile=../../protein_search.ini
 
 
 GESAMTLIBPATH=${GESAMTLIBPATH:-MISSING_VALUE}
