@@ -10,7 +10,7 @@ GESAMTLIBPATH=${GESAMTLIBPATH:-MISSING_VALUE}
 PRIMDIST="messif.distance.impl.ProteinDistanceDBImpl(${GESAMTLIBPATH},0)"
 REFINEDISTFUNC="messif.distance.impl.ProteinDistanceDBImpl(${GESAMTLIBPATH},0.6)"
 
-batchvar iniFile=../protein_search.ini
+batchvar iniFile=../../protein_search.ini
 
 batchvar pivotsLong=true
 batchvar primDist=${PRIMDIST}
@@ -20,7 +20,7 @@ starthosts=$HOST:$PORT
 javaparams="-Xmx40g -Djava.net.preferIPv4Addresses=true"
 
 javahome="/usr/lib/jvm/jdk-1.8"
-classdir=../05_PPP-codes/jars
+classdir=jars
 mainclass="messif.appl.HttpApplication $RMIPORT -httpThreads 15"
 batchvar rmiPort=$RMIPORT
 
