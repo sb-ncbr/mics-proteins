@@ -61,7 +61,7 @@ public class DBGlobal {
         Map<String, Object> ret = new HashMap<>();
         if (db == null) {
             if (filterPivots) {
-//                ret.put("pivotDistCountCached", 0);
+                ret.put("pivotDistCountCached", 0);
             }
             return new RecordImpl(ret);
         }
@@ -95,7 +95,7 @@ public class DBGlobal {
                 LOG.log(Level.INFO, "selectPrecomputedDistsToPivots: nothing was found");
             }
             res.close();
-//            ret.put("pivotDistCountCached", pivotCount);
+            ret.put("pivotDistCountCached", pivotCount);
             if (filterPivots && counterPrecomputedPivots >= pivotCount) {
                 LOG.log(Level.INFO, "selectPrecomputedDistsToPivots: All dists to pivots already computed in advance. Found {0} dists, required {1} of them", new Object[]{counterPrecomputedPivots, pivotCount});
                 pivotTimes += System.currentTimeMillis();
