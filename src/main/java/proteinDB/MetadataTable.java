@@ -26,7 +26,7 @@ public class MetadataTable {
     public static void main(String[] args) {
         try {
             Iterator<DataObject> dataObjects512Pivots = Tools.getIterator("c:\\Datasets\\proteins\\490000dataset\\dataset\\sketches\\512\\results_512_sk1024b.json");
-            Map<String, DataObject> dataObjects64Pivots = Tools.getObjectsAsLocatorMap("c:\\Datasets\\proteins\\490000dataset\\dataset\\sketches\\64_512\\results_512_sk194b.json", -1);
+            Map<String, DataObject> dataObjects64Pivots = Tools.getObjectsAsLocatorMap("c:\\Datasets\\proteins\\490000dataset\\dataset\\sketches\\64_512\\results_512_sk192b.json", -1);
             Connection connection = DBGlobal.getConnectionFromIniFile();
             insertMetadata(connection, dataObjects512Pivots, dataObjects64Pivots, 1);
         } catch (SQLException ex) {
